@@ -106,11 +106,11 @@ async function main() {
   console.log('Creando usuario de prueba...');
   const usuarioPrueba = await prisma.usuario.create({
     data: {
-      correo: "usuario@prueba.com",
-      nombre: "Usuario de Prueba",
+      correo: "ojosue199@gmail.com",
+      nombre: "Josue",
       // ¡IMPORTANTE! En una app real, NUNCA guardes la contraseña así.
       // Deberías usar bcrypt para hashearla. Esto es solo para el seed.
-      contrasenaHash: "bcrypt_hash_simulado_12345",
+      contrasenaHash: "12345",
     },
   });
 

@@ -11,7 +11,7 @@ datasource db {
 
 // --- Tabla de Usuarios ---
 model Usuario {
-  id             Int        @id @default(autoincrement()) // Cambiado a Int
+  id             Int        @id @default(autoincrement()) 
   correo         String     @unique
   contrasenaHash String
   nombre         String?
@@ -25,9 +25,9 @@ model Usuario {
   @@map("usuarios")
 }
 
-// --- Catálogo Maestro de Animales (La "Pokedex") ---
+// --- Catálogo Maestro de Animales ---
 model Animal {
-  id                Int        @id @default(autoincrement()) // Cambiado a Int (Este es ahora tu "Pokedex Number")
+  id                Int        @id @default(autoincrement()) 
   nombreComun       String
   nombreCientifico  String?
   esVenenoso        Boolean?
@@ -47,8 +47,8 @@ model Animal {
 
 // --- Tabla Intermedia: Pokedex (Usuario <-> Animal) ---
 model AnimalDesbloqueado {
-  usuarioId Int // Cambiado a Int
-  animalId  Int // Cambiado a Int
+  usuarioId Int 
+  animalId  Int 
   desbloqueadoEn DateTime @default(now())
 
   // Relaciones
@@ -62,7 +62,7 @@ model AnimalDesbloqueado {
 
 // --- Tabla de Antídotos ---
 model Antidoto {
-  id               Int        @id @default(autoincrement()) // Cambiado a Int
+  id               Int        @id @default(autoincrement()) 
   nombre           String     @unique
   descripcion      String?
   creadoEn         DateTime   @default(now())
@@ -77,8 +77,8 @@ model Antidoto {
 
 // --- Tabla Intermedia: Animal <-> Antídoto ---
 model AnimalAntidoto {
-  animalId   Int // Cambiado a Int
-  antidotoId Int // Cambiado a Int
+  animalId   Int 
+  antidotoId Int 
 
   // Relaciones
   animal     Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
@@ -90,7 +90,7 @@ model AnimalAntidoto {
 
 // --- Tabla de Hospitales ---
 model Hospital {
-  id                 Int        @id @default(autoincrement()) // Cambiado a Int
+  id                 Int        @id @default(autoincrement()) 
   nombre             String
   direccion          String
   telefono           String?
@@ -108,8 +108,8 @@ model Hospital {
 
 // --- Tabla Intermedia: Hospital <-> Antídoto (Stock) ---
 model HospitalAntidoto {
-  hospitalId Int // Cambiado a Int
-  antidotoId Int // Cambiado a Int
+  hospitalId Int 
+  antidotoId Int 
   stock      Int?     @default(0)
 
   // Relaciones
@@ -122,18 +122,18 @@ model HospitalAntidoto {
 
 // --- Tabla de Análisis (El "Escaneo") ---
 model Analisis {
-  id                   Int       @id @default(autoincrement()) // Cambiado a Int
+  id                   Int       @id @default(autoincrement()) 
   creadoEn             DateTime  @default(now())
   rutaImagen           String
   latitudUsuario       Float?
   longitudUsuario      Float?
 
   // --- Relación con Usuario ---
-  usuarioId            Int // Cambiado a Int
+  usuarioId            Int 
   usuario              Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   // --- Resultado IA ---
-  animalDetectadoId    Int? // Cambiado a Int
+  animalDetectadoId    Int? 
   animalDetectado      Animal?   @relation(fields: [animalDetectadoId], references: [id], onDelete: SetNull)
   esVenenosoDetectado  Boolean?
   descripcionIA        String?
@@ -141,9 +141,9 @@ model Analisis {
   confianzaIA          Float?
 
   // --- Recomendaciones ---
-  antidotoSugeridoId   Int? // Cambiado a Int
+  antidotoSugeridoId   Int? 
   antidotoSugerido     Antidoto? @relation(fields: [antidotoSugeridoId], references: [id], onDelete: SetNull)
-  hospitalRecomendadoId Int? // Cambiado a Int
+  hospitalRecomendadoId Int? 
   hospitalRecomendado   Hospital? @relation(fields: [hospitalRecomendadoId], references: [id], onDelete: SetNull)
 
   @@map("analisis")

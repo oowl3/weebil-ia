@@ -65,19 +65,47 @@ export default function ParallaxCard({
   return (
     <section ref={containerRef} className="min-h-screen relative flex items-center justify-center px-4 overflow-hidden">
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Background */}
+        {/* Background - Es el más grande, necesita calidad decente */}
         <div className="layer-bg absolute inset-0 w-full h-full">
-           <Image src={imgBack} alt="Fondo" fill className="object-cover scale-125" priority={id===1} />
+           <Image 
+             src={imgBack} 
+             alt="Fondo" 
+             fill 
+             // AQUÍ ESTÁ LA MAGIA:
+             // "Hasta 768px (móvil), usa la versión del ancho de pantalla.
+             //  Más grande de eso, usa también el ancho de pantalla."
+             sizes="(max-width: 768px) 100vw, 100vw"
+             // Baja la calidad a 75 (imperceptible al ojo, reduce peso 40%)
+             quality={75}
+             priority={id===1}
+             className="object-cover scale-125" 
+           />
         </div>
         
-        {/* Midground */}
+        {/* Midground - Usualmente cubre menos área o detalle */}
         <div className="layer-mid absolute top-1/4 w-full h-full">
-            <Image src={imgMid} alt="Plano medio" fill className="object-cover object-center" />
+            <Image 
+              src={imgMid} 
+              alt="Plano medio" 
+              fill 
+              // En tablet/móvil es full width, pero quizás el archivo original es enorme
+              sizes="(max-width: 768px) 100vw, 100vw"
+              quality={70} // Podemos bajar un poco más aquí
+              className="object-cover object-center" 
+            />
         </div>
         
-        {/* Foreground */}
+        {/* Foreground - Primer plano, requiere detalle */}
         <div className="layer-fore absolute bottom-0 w-full h-2/3">
-            <Image src={imgFore} alt="Primer plano" fill className="object-cover object-bottom" />
+            <Image 
+              src={imgFore} 
+              alt="Primer plano" 
+              fill 
+              // Este elemento solo ocupa 2/3 de altura, pero el ancho es full
+              sizes="(max-width: 768px) 100vw, 100vw"
+              quality={80} 
+              className="object-cover object-bottom" 
+            />
         </div>
         
         <div className="absolute inset-0 bg-black/20"></div>

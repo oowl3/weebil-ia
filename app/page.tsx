@@ -34,12 +34,21 @@ export default function Home() {
       {/* --- SECCIÓN HERO (Portada) --- */}
       <section className='relative min-h-screen overflow-hidden'>
         <div className="absolute inset-0 w-full h-full z-0">
-          {/* Nota: Si tienes el video en 'public', esto funciona bien. */}
           <video
-            src="/alacran_arena.mp4"
-            autoPlay loop muted playsInline
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="/images/alacran.sgv" 
             className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 object-cover"
-          />
+          >
+            <source 
+              src="https://res.cloudinary.com/dje7eryo3/video/upload/ac_none,f_auto,q_auto/alacran_arena_original_qdmuta" 
+            />
+          </video>
+          
+          {/* Capa oscura opcional para que el texto blanco resalte mejor */}
+          <div className="absolute inset-0 bg-black/20"></div>
         </div>
 
         <div className="relative z-20 flex flex-col min-h-screen text-white text-center px-4">

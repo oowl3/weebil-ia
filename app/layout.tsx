@@ -16,7 +16,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Weebil - AracnoScan", 
+  title: "Weebil", 
   description: "Identificación de arácnidos con IA",
 };
 

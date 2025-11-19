@@ -11,6 +11,8 @@ Se abre en [http://localhost:3000](http://localhost:3000)
 
 # Cosas a instalar
 npm install prisma @prisma/client
+npm install gsap
+
 npm i zod
 
 

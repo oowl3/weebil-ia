@@ -10,7 +10,11 @@ Se abre en [http://localhost:3000](http://localhost:3000)
 ```bash
 
 # Cosas a instalar
+npm install next-auth
 npm install prisma @prisma/client
+npm install prisma @prisma/client
+
+
 npm install gsap
 npm install @gsap/react
 npm i zod

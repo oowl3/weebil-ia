@@ -12,7 +12,7 @@ Se abre en [http://localhost:3000](http://localhost:3000)
 # Cosas a instalar
 npm install next-auth
 npm install prisma @prisma/client
-npm install prisma @prisma/client
+npm install @auth/prisma-adapter
 
 
 npm install gsap

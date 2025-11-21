@@ -14,25 +14,30 @@ npm install next-auth
 npm install prisma @prisma/client
 npm install @auth/prisma-adapter
 
-
+npm install lucide-react
 npm install gsap
 npm install @gsap/react
 npm i zod
 
 
 ```
+npx prisma generate
+
 
 ## Faker en la BD
 ¿Como acceder a el menu de la BD?
 ```bash
 npx prisma studio
 ```
+Libreria de Iconos
+[https://lucide.dev/icons/](https://lucide.dev/icons/)
+
 Generador de datos falsos
 [https://fakerjs.dev/](https://fakerjs.dev/) 
 
 
-```
-Comandos Utiles .Dev
+
+### Comandos Utiles .Dev
 rafce
 
 

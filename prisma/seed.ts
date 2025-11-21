@@ -16,7 +16,7 @@ async function main() {
   await prisma.animal.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log('🧹 Base de datos limpiada.');
+  //console.log('🧹 Base de datos limpiada.');
 
   // 2. CREACIÓN DE ANTÍDOTOS
   const sueroPolivalente = await prisma.antidoto.create({
@@ -33,7 +33,7 @@ async function main() {
     },
   });
 
-  console.log('💉 Antídotos creados.');
+  //console.log('💉 Antídotos creados.');
 
   // 3. CREACIÓN DE ANIMALES
   const viudaNegra = await prisma.animal.create({
@@ -72,7 +72,7 @@ async function main() {
     },
   });
 
-  console.log('🕷️ Animales creados.');
+  //console.log('🕷️ Animales creados.');
 
   // 4. RELACIONAR ANIMALES CON ANTÍDOTOS (Tabla Intermedia)
   await prisma.animalAntidoto.createMany({
@@ -106,7 +106,7 @@ async function main() {
     },
   });
 
-  console.log('🏥 Hospitales creados.');
+  //console.log('🏥 Hospitales creados.');
 
   // 6. INVENTARIO DE HOSPITALES (Tabla Intermedia)
   await prisma.hospitalAntidoto.createMany({
@@ -127,7 +127,7 @@ async function main() {
     },
   });
 
-  console.log('👤 Usuario demo creado.');
+  //console.log('👤 Usuario demo creado.');
 
   // 8. SIMULAR ANIMALES DESBLOQUEADOS POR EL USUARIO
   await prisma.animalDesbloqueado.create({
@@ -158,12 +158,12 @@ async function main() {
     },
   });
 
-  console.log('✅ Seed completado exitosamente.');
+  //console.log('✅ Seed completado exitosamente.');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error durante el seed:', e);
+    //console.error('❌ Error durante el seed:', e);
     process.exit(1);
   })
   .finally(async () => {

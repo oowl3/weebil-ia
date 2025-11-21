@@ -40,8 +40,8 @@ export const authOptions: AuthOptions = {
 
   // 5. Páginas personalizadas
   pages: {
-    signIn: '/login',
-    error: '/login',
+    signIn: '/Registro',
+    error: '/Registro',
   },
 };
 

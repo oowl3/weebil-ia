@@ -1,11 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-/**
- * MIDDLEWARE DE SEGURIDAD - NEXT.JS APP ROUTER
- * * Este middleware envuelve la lógica de autenticación.
- * Se ejecuta en el Edge Runtime, por lo que debe ser ligero.
- */
 export default withAuth(
   function middleware(req) {
     // Aquí podrías agregar lógica extra si fuera necesario, 

@@ -1,7 +1,7 @@
 import ParallaxCard from "@/app/components/ParallaxCard"; 
+import Link from 'next/link';
 
 export default function Home() {
-  // Optimización 1: Actualización de sintaxis de variables en el objeto de configuración
   const cardsData = [
     { id: 1,
       title: "¿Qué es Weebil?",
@@ -56,10 +56,8 @@ export default function Home() {
           <div className="grow"></div>
 
           <div className="flex flex-col items-center">
-            {/* Optimización 3: Variables CSS directas con paréntesis 'bg-(--var)' */}
             <div className="bg-(--sand-3)/20 backdrop-blur-sm rounded-2xl p-10 max-w-md mx-auto transition-all duration-500 hover:bg-(--sand-3)/30">
               <h1 className="text-8xl font-bold mb-8 flex items-center justify-center" role="heading">
-                {/* Letras separadas con sintaxis limpia */}
                 <span className="text-(--intense-pink) text-[120px] leading-none">W</span>
                 <span className="text-(--black-deep) text-[120px] leading-none">e</span>
                 <span className="text-(--black-deep) text-[120px] leading-none">e</span>
@@ -76,13 +74,13 @@ export default function Home() {
 
           {/* Optimización 4: Arbitrary Value para grow específico */}
           <div className="grow-7"></div>
-
-          <div className="flex flex-col items-center pb-10">
-             <a href="/Inicio" className="font-bold text-white py-5 px-24 bg-(--intense-pink) rounded-xl text-2xl active:scale-95 transition-all duration-150 select-none touch-manipulation shadow-lg hover:shadow-pink-500/50">
-               Continuar
-             </a>
+            <div className="flex flex-col items-center pb-10">
+              <Link href="/Inicio" 
+              className="font-bold text-white py-5 px-24 bg-(--intense-pink) rounded-xl text-2xl active:scale-95 transition-all duration-150 select-none touch-manipulation shadow-lg hover:shadow-pink-500/50">
+                Continuar 
+              </Link>
+            </div>
           </div>
-        </div>
       </section>
 
       {/* --- SECCIÓN DE TARJETAS (Renderizado Dinámico) --- */}

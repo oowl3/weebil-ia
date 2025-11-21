@@ -2,39 +2,74 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// DATABASE_URL .env
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// --- AUTH: Modelos Estándar de NextAuth (No los toques) ---
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
-// --- Tabla de Usuarios ---
-model Usuario {
-  id             Int        @id @default(autoincrement()) 
-  correo         String     @unique
-  contrasenaHash String
-  nombre         String?
-  creadoEn       DateTime   @default(now())
-  actualizadoEn  DateTime   @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relaciones
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid()) // IDs como Strings (Mejor para Auth)
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?   // Foto de perfil de Google
+  accounts      Account[]
+  sessions      Session[]
+  
+  // --- TUS RELACIONES DE NEGOCIO ---
   analisis             Analisis[]
   animalesDesbloqueados AnimalDesbloqueado[]
 
-  @@map("usuarios")
+  @@map("users") // Puedes llamar a la tabla "users" o "usuarios" si prefieres
 }
 
-// --- Catálogo Maestro de Animales ---
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- DOMINIO: Tu Lógica de Negocio (AracnoScan) ---
+
 model Animal {
-  id                Int        @id @default(autoincrement()) 
+  id                Int      @id @default(autoincrement()) 
   nombreComun       String
   nombreCientifico  String?
   esVenenoso        Boolean?
   descripcion       String?
-  habitat           String?  // Ej: "Lugares húmedos, debajo de rocas..."
+  habitat           String?
   primerosAuxilios  String?
-  rutaImagenCard    String?  // Imagen "oficial" para la card de la Pokedex
+  rutaImagenCard    String?
   creadoEn          DateTime @default(now())
 
   // Relaciones
@@ -45,74 +80,63 @@ model Animal {
   @@map("animales")
 }
 
-// --- Tabla Intermedia: Pokedex (Usuario <-> Animal) ---
 model AnimalDesbloqueado {
-  usuarioId Int 
+  usuarioId String   // Cambio a String para coincidir con User.id
   animalId  Int 
   desbloqueadoEn DateTime @default(now())
 
-  // Relaciones
-  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuario   User    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   animal    Animal  @relation(fields: [animalId], references: [id], onDelete: Cascade)
 
   @@id([usuarioId, animalId])
   @@map("animales_desbloqueados")
 }
 
-
-// --- Tabla de Antídotos ---
 model Antidoto {
-  id               Int        @id @default(autoincrement()) 
-  nombre           String     @unique
-  descripcion      String?
-  creadoEn         DateTime   @default(now())
+  id                Int      @id @default(autoincrement()) 
+  nombre            String   @unique
+  descripcion       String?
+  creadoEn          DateTime @default(now())
 
-  // Relaciones
-  animalAntidoto   AnimalAntidoto[]
-  hospitalAntidoto HospitalAntidoto[]
+  animalAntidoto    AnimalAntidoto[]
+  hospitalAntidoto  HospitalAntidoto[]
   analisisSugeridos Analisis[]
 
   @@map("antidotos")
 }
 
-// --- Tabla Intermedia: Animal <-> Antídoto ---
 model AnimalAntidoto {
-  animalId   Int 
-  antidotoId Int 
+  animalId    Int 
+  antidotoId  Int 
 
-  // Relaciones
-  animal     Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
-  antidoto   Antidoto @relation(fields: [antidotoId], references: [id], onDelete: Cascade)
+  animal      Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  antidoto    Antidoto @relation(fields: [antidotoId], references: [id], onDelete: Cascade)
 
   @@id([animalId, antidotoId])
   @@map("animales_antidotos")
 }
 
-// --- Tabla de Hospitales ---
 model Hospital {
-  id                 Int        @id @default(autoincrement()) 
+  id                 Int      @id @default(autoincrement()) 
   nombre             String
   direccion          String
   telefono           String?
   latitud            Float
   longitud           Float
   ultimaVerificacion DateTime?
-  creadoEn           DateTime   @default(now())
+  creadoEn           DateTime @default(now())
 
-  // Relaciones
   hospitalAntidoto     HospitalAntidoto[]
   analisisRecomendados Analisis[]
 
   @@map("hospitales")
 }
 
-// --- Tabla Intermedia: Hospital <-> Antídoto (Stock) ---
 model HospitalAntidoto {
   hospitalId Int 
   antidotoId Int 
   stock      Int?     @default(0)
 
-  // Relaciones
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   antidoto   Antidoto @relation(fields: [antidotoId], references: [id], onDelete: Cascade)
 
@@ -120,31 +144,35 @@ model HospitalAntidoto {
   @@map("hospitales_antidotos")
 }
 
-// --- Tabla de Análisis (El "Escaneo") ---
 model Analisis {
-  id                   Int       @id @default(autoincrement()) 
-  creadoEn             DateTime  @default(now())
-  rutaImagen           String
-  latitudUsuario       Float?
-  longitudUsuario      Float?
+  id                Int      @id @default(autoincrement()) 
+  creadoEn          DateTime @default(now())
+  rutaImagen        String
+  latitudUsuario    Float?
+  longitudUsuario   Float?
 
   // --- Relación con Usuario ---
-  usuarioId            Int 
-  usuario              Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  // OJO: userId puede ser nulo si es un invitado (guest)
+  usuarioId         String?  
+  usuario           User?    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  // Para invitados
+  guestId           String?
 
   // --- Resultado IA ---
-  animalDetectadoId    Int? 
-  animalDetectado      Animal?   @relation(fields: [animalDetectadoId], references: [id], onDelete: SetNull)
-  esVenenosoDetectado  Boolean?
-  descripcionIA        String?
-  primerosAuxiliosIA   String?
-  confianzaIA          Float?
+  animalDetectadoId     Int? 
+  animalDetectado       Animal?   @relation(fields: [animalDetectadoId], references: [id], onDelete: SetNull)
+  esVenenosoDetectado   Boolean?
+  descripcionIA         String?
+  primerosAuxiliosIA    String?
+  confianzaIA           Float?
 
   // --- Recomendaciones ---
-  antidotoSugeridoId   Int? 
-  antidotoSugerido     Antidoto? @relation(fields: [antidotoSugeridoId], references: [id], onDelete: SetNull)
+  antidotoSugeridoId    Int? 
+  antidotoSugerido      Antidoto? @relation(fields: [antidotoSugeridoId], references: [id], onDelete: SetNull)
   hospitalRecomendadoId Int? 
   hospitalRecomendado   Hospital? @relation(fields: [hospitalRecomendadoId], references: [id], onDelete: SetNull)
 
+  @@index([guestId])
   @@map("analisis")
 }

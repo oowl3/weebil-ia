@@ -1,19 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
-// Esto evita que se creen múltiples conexiones a la base de datos
-// durante el desarrollo (es una "mejor práctica" estándar).
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-declare global {
-  // Permite que 'prisma' exista en el objeto 'global' de Node.js
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
+// Exportamos 'const' para permitir import { prisma } from '@/lib/prisma'
+export const prisma = globalForPrisma.prisma || new PrismaClient();
 
-const client = global.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = client;
-}
-
-// Exporta el cliente único para que lo uses en tu app
-export default client;
+export default prisma;

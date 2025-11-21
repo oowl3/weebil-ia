@@ -71,13 +71,8 @@ export default function ParallaxCard({
              src={imgBack} 
              alt="Fondo" 
              fill 
-             // AQUÍ ESTÁ LA MAGIA:
-             // "Hasta 768px (móvil), usa la versión del ancho de pantalla.
-             //  Más grande de eso, usa también el ancho de pantalla."
              sizes="(max-width: 768px) 100vw, 100vw"
-             // Baja la calidad a 75 (imperceptible al ojo, reduce peso 40%)
              quality={75}
-             priority={id===1}
              className="object-cover scale-125" 
            />
         </div>

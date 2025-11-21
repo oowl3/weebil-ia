@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import NextAuth, { DefaultSession } from "next-auth";
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+declare module "next-auth" {
 
-// Usamos 'export const' para permitir import { prisma } from ...
-export const prisma = globalForPrisma.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-// Opcional: exportar por defecto también para compatibilidad con tus archivos viejos
-export default prisma;
+  interface Session {
+    user: {
+      id: string; 
+    } & DefaultSession["user"];
+  }
+}

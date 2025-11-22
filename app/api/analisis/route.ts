@@ -8,7 +8,8 @@ const bodySchema = z.object({
   latitudUsuario: z.number().optional(),
   longitudUsuario: z.number().optional(),
 
-  usuarioId: z.number(),              // obligatorio
+  // CORRECCIÓN AQUÍ: El ID de usuario en Prisma es String (CUID)
+  usuarioId: z.string(),              // obligatorio
 
   animalDetectadoId: z.number().optional(),
   esVenenosoDetectado: z.boolean().optional(),
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
         rutaImagen: data.rutaImagen,
         latitudUsuario: data.latitudUsuario,
         longitudUsuario: data.longitudUsuario,
-        usuarioId: data.usuarioId,
+        usuarioId: data.usuarioId, // Ahora sí es un String compatible
 
         animalDetectadoId: data.animalDetectadoId,
         esVenenosoDetectado: data.esVenenosoDetectado,

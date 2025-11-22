@@ -13,6 +13,10 @@ Se abre en [http://localhost:3000](http://localhost:3000)
 npm install next-auth
 npm install prisma @prisma/client
 npm install @auth/prisma-adapter
+npm install uuid @types/uuid
+
+npm install @google/generative-ai
+npm install @google/generative-ai@latest
 
 npm install lucide-react
 npm install gsap

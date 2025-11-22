@@ -20,7 +20,7 @@ export default withAuth(
         if (
             path.startsWith("/api/auth") || 
             path.startsWith("/Scaner") ||
-            path.startsWith("/api/scaner") // Asumiendo que el scanner tiene API
+            path.startsWith("/api/analizar_g") // Asumiendo que el scanner tiene API
         ) {
           return true;
         }

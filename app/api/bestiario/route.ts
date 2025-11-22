@@ -4,15 +4,15 @@ import prisma from '../../../lib/prisma';
 import { z } from 'zod'; 
 
 // --- ESQUEMA PARA GET (Query Params) ---
-// Es mandatorio saber DE QUIÉN es la Pokedex
 const querySchema = z.object({
-  usuarioId: z.coerce.number().int().positive("El ID de usuario es requerido"),
+  // CORRECCIÓN: El ID de usuario es String, no Number
+  usuarioId: z.string().min(1, "El ID de usuario es requerido"),
 });
 
 // --- ESQUEMA PARA POST (JSON Body) ---
-// IDs para crear la relación
 const pokedexCreateSchema = z.object({
-  usuarioId: z.number().int().positive("ID de usuario inválido"),
+  // CORRECCIÓN: El usuario es String, el animal SÍ es Number (Int)
+  usuarioId: z.string().min(1, "ID de usuario inválido"),
   animalId: z.number().int().positive("ID de animal inválido"),
 });
 
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 
     // Buscamos las entradas de la pokedex y "traemos" la info del animal
     const pokedex = await prisma.animalDesbloqueado.findMany({
-      where: { usuarioId: usuarioId },
+      where: { usuarioId: usuarioId }, // Ahora usuarioId es String y Prisma es feliz
       include: {
         // ¡Incluye los datos del animal (nombre, foto, etc.)!
         animal: true, 
@@ -73,17 +73,12 @@ export async function POST(request: Request) {
     }
     
     // --- Lógica de Ingeniería (Idempotencia) ---
-    // Usamos "upsert" en lugar de "create".
-    // ¿Qué pasa si el usuario escanea el mismo alacrán dos veces?
-    // "create" daría un error de llave duplicada.
-    // "upsert" intentará crearlo, y si ya existe, no hace nada.
-    // Esto hace que tu API sea robusta y "segura" de llamar múltiples veces.
     const desbloqueo = await prisma.animalDesbloqueado.upsert({
       where: {
-        // La clave primaria @@id([usuarioId, animalId]) se llama así en Prisma:
+        // La clave primaria compuesta
         usuarioId_animalId: {
-          usuarioId: validation.data.usuarioId,
-          animalId: validation.data.animalId
+          usuarioId: validation.data.usuarioId, // String
+          animalId: validation.data.animalId    // Int
         }
       },
       // Datos a crear si no existe:
@@ -91,7 +86,7 @@ export async function POST(request: Request) {
         usuarioId: validation.data.usuarioId,
         animalId: validation.data.animalId,
       },
-      // Datos a actualizar si ya existe (en este caso, no actualizamos nada):
+      // Datos a actualizar si ya existe (nada):
       update: {}
     });
 

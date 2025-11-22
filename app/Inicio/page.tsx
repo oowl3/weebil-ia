@@ -12,7 +12,7 @@ const Loguin = () => {
         Iniciar secion/Crear cuenta 
       </Link>
       <br />
-      <Link href="/ScannerPage" 
+      <Link href="/Analizar" 
       className="font-bold text-white py-5 px-24 bg-(--intense-pink) rounded-xl text-2xl active:scale-95 transition-all duration-150 select-none touch-manipulation shadow-lg hover:shadow-pink-500/50">
         Continuar sin cuenta 
       </Link>

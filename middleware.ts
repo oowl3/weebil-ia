@@ -19,8 +19,9 @@ export default withAuth(
         // Esto cubre /api/scaner (si existiera) o cualquier lógica del scaner.
         if (
             path.startsWith("/api/auth") || 
-            path.startsWith("/Analizar") ||
-            path.startsWith("/api/analizar_g") // Asumiendo que el scanner tiene API
+            path.startsWith("/Scaner") ||
+            path.startsWith("/api/analizar_g") ||
+            path.startsWith("/api/ia/chat") // Asumiendo que el scanner tiene API
         ) {
           return true;
         }

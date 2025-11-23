@@ -47,6 +47,7 @@ model User {
   // --- TUS RELACIONES DE NEGOCIO ---
   analisis             Analisis[]
   animalesDesbloqueados AnimalDesbloqueado[]
+  conversacionesIA     ConversacionIA[] // RELACIÓN NUEVA
 
   @@map("users") // Puedes llamar a la tabla "users" o "usuarios" si prefieres
 }
@@ -57,6 +58,37 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// --- NUEVO MODELO PARA CONVERSACIONES CON IA ---
+model ConversacionIA {
+  id                String   @id @default(cuid())
+  creadoEn          DateTime @default(now())
+  
+  // Relación con usuario (puede ser nulo para invitados)
+  usuarioId         String?
+  usuario           User?    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  // Para invitados
+  guestId           String?
+  
+  // Entrada del usuario
+  mensajeUsuario    String   @db.Text
+  
+  // Respuesta de la IA
+  respuestaIA       String   @db.Text
+  modeloIA          String?  // "gpt-4", "claude", etc.
+  tokensUtilizados  Int?
+  
+  // Metadata adicional
+  tipoConsulta      String?  // "identificacion", "informacion", "primeros_auxilios", etc.
+  animalReferenciadoId Int?
+  animalReferenciado Animal? @relation(fields: [animalReferenciadoId], references: [id])
+
+  @@index([usuarioId])
+  @@index([guestId])
+  @@index([creadoEn])
+  @@map("conversaciones_ia")
 }
 
 // --- DOMINIO: Tu Lógica de Negocio (AracnoScan) ---
@@ -76,6 +108,7 @@ model Animal {
   animalAntidoto    AnimalAntidoto[]
   analisis          Analisis[]
   desbloqueadoPor   AnimalDesbloqueado[]
+  conversacionesReferenciadas ConversacionIA[] // RELACIÓN NUEVA
 
   @@map("animales")
 }
@@ -172,6 +205,10 @@ model Analisis {
   antidotoSugerido      Antidoto? @relation(fields: [antidotoSugeridoId], references: [id], onDelete: SetNull)
   hospitalRecomendadoId Int? 
   hospitalRecomendado   Hospital? @relation(fields: [hospitalRecomendadoId], references: [id], onDelete: SetNull)
+
+  // NUEVO: Relación con conversación IA
+  conversacionIAId String?
+  conversacionIA   ConversacionIA? @relation(fields: [conversacionIAId], references: [id])
 
   @@index([guestId])
   @@map("analisis")

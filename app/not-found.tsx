@@ -42,7 +42,7 @@ export default function NotFound() {
 
           {/* Botón secundario */}
           <Link
-            href="/Scaner"
+            href="/Analizar"
             className="
               w-full inline-flex items-center justify-center rounded-xl
               py-3 font-semibold 

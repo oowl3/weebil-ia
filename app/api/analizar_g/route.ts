@@ -4,63 +4,73 @@ import {
   SchemaType, 
   HarmCategory, 
   HarmBlockThreshold,
-  Schema
+  Schema 
 } from "@google/generative-ai";
-import { guardarConversacionIA } from '@/lib/iaStorage';
-import { prisma } from '@/lib/prisma';
 
-// Carga las llaves
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.API_KEY!);
 
+// OPTIMIZACIÓN: Schema más permisivo para casos negativos
 const schema: Schema = {
-  description: "Análisis de fauna",
+  description: "Análisis de fauna y evaluación de riesgos matizada",
   type: SchemaType.OBJECT,
   properties: {
-    identificado: { type: SchemaType.BOOLEAN, description: "Si es un animal identificable", nullable: false },
-    nombre_comun: { type: SchemaType.STRING, description: "Nombre común del animal", nullable: false },
+    identificado: { type: SchemaType.BOOLEAN, description: "Si es un animal", nullable: false },
+    nombre_comun: { type: SchemaType.STRING, description: "Nombre común", nullable: false },
     nombre_cientifico: { type: SchemaType.STRING, description: "Nombre científico", nullable: false },
-    es_venenoso: { type: SchemaType.BOOLEAN, description: "Si representa peligro médico", nullable: false },
-    descripcion_pokedex: { type: SchemaType.STRING, description: "Dato curioso corto", nullable: false },
-    habitat: { type: SchemaType.STRING, description: "Dónde vive suele vivir", nullable: false },
-    primeros_auxilios: { type: SchemaType.STRING, description: "Qué hacer si te pica", nullable: false },
-    nivel_confianza: { type: SchemaType.NUMBER, description: "Del 0 al 1", nullable: false },
+    nivel_peligrosidad: { type: SchemaType.STRING, description: "Nivel de riesgo: 'BAJO' (inofensivo), 'MODERADO' (doloroso/veneno leve), 'ALTO' (peligro médico/letal)", nullable: false },
+    descripcion_pokedex: { type: SchemaType.STRING, description: "Dato curioso", nullable: false },
+    habitat: { type: SchemaType.STRING, description: "Dónde vive", nullable: false },
+    primeros_auxilios: { type: SchemaType.STRING, description: "Qué hacer", nullable: false },
+    nivel_confianza: { type: SchemaType.NUMBER, description: "0 al 1", nullable: false },
   },
-  required: ["identificado", "nombre_comun", "nombre_cientifico", "es_venenoso", "descripcion_pokedex", "primeros_auxilios", "nivel_confianza"],
+  required: ["identificado", "nombre_comun", "nombre_cientifico", "nivel_peligrosidad", "descripcion_pokedex", "habitat", "primeros_auxilios", "nivel_confianza"],
 };
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("image") as File;
-    const usuarioId = formData.get("usuarioId") as string; // ← NUEVO: obtener usuarioId
-    const guestId = formData.get("guestId") as string;     // ← NUEVO: obtener guestId
 
     if (!file) {
-      return NextResponse.json({ error: "No imagen recibida" }, { status: 400 });
+      return NextResponse.json({ error: "No se recibió imagen" }, { status: 400 });
     }
 
-    console.log('🖼️ Procesando imagen para análisis...', {
-      fileName: file.name,
-      fileSize: file.size,
-      usuarioId,
-      guestId
-    });
+    // Validación de tamaño (Vercel Serverless suele limitar a 4.5MB en el body)
+    if (file.size > 4.5 * 1024 * 1024) {
+        return NextResponse.json({ error: "La imagen es demasiado grande. Intenta con una de menor resolución." }, { status: 413 });
+    }
 
     const arrayBuffer = await file.arrayBuffer();
+    // Optimización: Convertir a Base64 es costoso en memoria, pero necesario aquí.
     const base64Image = Buffer.from(arrayBuffer).toString("base64");
 
     const model = genAI.getGenerativeModel({
+      // AJUSTE: Usamos la versión estable más rápida actual
       model: "gemini-2.5-flash", 
       safetySettings: [
+        // Crucial para que no bloquee imágenes de arañas "aterradoras" o heridas
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
       ],
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema,
+        temperature: 0.4, // Bajamos temperatura para ser más precisos y menos creativos
       },
     });
 
-    const prompt = "Analiza esta imagen. Identifica qué tipo de escorpión o araña es, qué tan peligroso es y dame datos curiosos. Responde estrictamente usando el esquema JSON provisto.";
+    // PROMPT DE INGENIERÍA: Más robusto y defensivo
+const prompt = `
+      Actúa como un biólogo experto. Analiza la imagen.
+      1. Identifica el animal.
+      2. Clasifica el 'nivel_peligrosidad' basándote en el impacto a un humano adulto sano:
+         - "BAJO": Animales inofensivos, sin veneno o incapaces de herir (ej. grillos, mariposas, ranas comunes).
+         - "MODERADO": Animales con veneno leve o mordida dolorosa pero NO letal (ej. ABEJAS, AVISPAS, tarántulas comunes, hormigas rojas). Causan dolor e hinchazón, pero rara vez urgencia médica salvo alergia.
+         - "ALTO": Animales con veneno médicamente significativo o fuerza letal (ej. Viuda negra, Violinista, Serpientes de cascabel, Alacranes de corteza). Requieren antídoto u hospital.
+      
+      3. Si es una abeja o avispa, el nivel debe ser "MODERADO", no "ALTO".
+      4. Genera los consejos de primeros auxilios acordes al nivel.
+    `;
 
     const result = await model.generateContent([
       prompt,
@@ -72,73 +82,22 @@ export async function POST(req: NextRequest) {
       },
     ]);
 
+    // Extracción segura
     const responseText = result.response.text();
     const data = JSON.parse(responseText);
-
-    // 🔥 NUEVO: Guardar la conversación en la base de datos
-    console.log('💾 Guardando análisis de imagen en BD...');
     
-    // Crear mensaje descriptivo para el usuario
-    const mensajeUsuario = `Análisis de imagen: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-    
-    // Crear respuesta resumida de la IA
-    const respuestaIA = `Animal identificado: ${data.nombre_comun} (${data.nombre_cientifico}). ${data.es_venenoso ? 'ES VENENOSO' : 'No es venenoso'}. ${data.descripcion_pokedex}. Confianza: ${(data.nivel_confianza * 100).toFixed(1)}%`;
-
-    // Buscar el animal en la base de datos para obtener su ID
-    let animalReferenciadoId: number | undefined;
-    if (data.identificado && data.nombre_comun) {
-      const animal = await prisma.animal.findFirst({
-        where: {
-          nombreComun: {
-            contains: data.nombre_comun,
-            mode: 'insensitive'
-          }
-        }
-      });
-      animalReferenciadoId = animal?.id;
-    }
-
-    // Guardar en la base de datos
-    await guardarConversacionIA({
-      mensajeUsuario: mensajeUsuario,
-      respuestaIA: respuestaIA,
-      usuarioId: usuarioId || undefined,
-      guestId: guestId || undefined,
-      modeloIA: 'gemini-2.5-flash',
-      tokensUtilizados: result.response.usageMetadata?.totalTokenCount,
-      tipoConsulta: 'analisis_imagen',
-      animalReferenciadoId: animalReferenciadoId
-    });
-
-    console.log('✅ Análisis de imagen guardado en BD exitosamente');
-
     return NextResponse.json(data);
 
   } catch (error: any) {
-    console.error("🔥 Error en el servidor:", error.message);
+    console.error("🔥 Error en análisis IA:", error);
     
-    // Guardar también el error en la base de datos
-    try {
-      const formData = await req.formData();
-      const file = formData.get("image") as File;
-      const usuarioId = formData.get("usuarioId") as string;
-      const guestId = formData.get("guestId") as string;
-
-      await guardarConversacionIA({
-        mensajeUsuario: `Análisis de imagen fallido: ${file?.name || 'imagen desconocida'}`,
-        respuestaIA: `Error en el análisis: ${error.message}`,
-        usuarioId: usuarioId || undefined,
-        guestId: guestId || undefined,
-        modeloIA: 'gemini-2.5-flash',
-        tipoConsulta: 'error_analisis'
-      });
-    } catch (guardadoError) {
-      console.error('Error guardando el error:', guardadoError);
-    }
+    // Manejo diferenciado de errores
+    const status = error.message?.includes("413") ? 413 : 500;
+    const msg = error.message?.includes("413") ? "Imagen demasiado pesada" : "Error interno del modelo IA";
 
     return NextResponse.json(
-      { error: "Falló el análisis", details: error.message },
-      { status: 500 }
+      { error: msg, details: error.message },
+      { status }
     );
   }
 }

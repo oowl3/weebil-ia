@@ -17,7 +17,6 @@
     "@google/generative-ai": "^0.24.1",
     "@gsap/react": "^2.1.2",
     "@prisma/client": "^6.19.0",
-    "@tanstack/react-query": "^5.90.10",
     "@types/uuid": "^10.0.0",
     "gsap": "^3.13.0",
     "lucide": "^0.554.0",

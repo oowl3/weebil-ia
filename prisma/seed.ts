@@ -7,7 +7,6 @@ async function main() {
 
   // 1. LIMPIEZA (Orden inverso para respetar Foreign Keys)
   await prisma.animalDesbloqueado.deleteMany();
-  await prisma.analisis.deleteMany();
   await prisma.hospitalAntidoto.deleteMany();
   await prisma.animalAntidoto.deleteMany();
   await prisma.hospital.deleteMany();
@@ -31,47 +30,238 @@ async function main() {
   });
 
   // 3. CREACIÓN DE ANIMALES
-  const viudaNegra = await prisma.animal.create({
+  // --- Más animales venenosos de Durango ---
+  const alacranDurango = await prisma.animal.create({
     data: {
-      nombreComun: 'Viuda Negra',
-      nombreCientifico: 'Latrodectus mactans',
-      esVenenoso: true,
-      descripcion: 'Araña negra brillante con una marca roja en forma de reloj de arena en el abdomen.',
-      habitat: 'Lugares oscuros y secos, garajes, sótanos.',
-      primerosAuxilios: 'Lavar la zona, aplicar hielo, acudir a urgencias inmediatamente.',
-      rutaImagenCard: '/images/animals/viuda-negra.jpg',
+      nombreComun: 'Alacrán de Durango',
+      nombreCientifico: 'Centruroides suffusus',
+      descripcion: 'Escorpión neurotóxico, muy implicado en envenenamientos en zonas urbanas de Durango.',
+      habitat: 'Escombros, bajo piedras, madera en zonas periurbanas.',
+      primerosAuxilios: 'Lavar la zona con agua, inmovilizar la extremidad, aplicar hielo, buscar atención médica urgente.',
+      rutaImagen: '/images/animals/alacran-suffusus.jpg',
+      peligrosidad: 3,
+      categoria: 3,
     },
   });
 
-  const violinista = await prisma.animal.create({
+  const alacranPardoOscuro = await prisma.animal.create({
     data: {
-      nombreComun: 'Araña Violinista',
-      nombreCientifico: 'Loxosceles reclusa',
-      esVenenoso: true,
-      descripcion: 'Marrón con una marca en forma de violín en el cefalotórax. Su picadura causa necrosis.',
-      habitat: 'Rincones, detrás de cuadros, ropa guardada.',
-      primerosAuxilios: 'Aplicar hielo, no succionar veneno, ir al hospital.',
-      rutaImagenCard: '/images/animals/violinista.jpg',
+      nombreComun: 'Alacrán pardo oscuro',
+      nombreCientifico: 'Centruroides noxius',
+      descripcion: 'Escorpión con veneno potente y neurotóxico; puede producir síntomas graves.',
+      habitat: 'Áreas áridas, grietas rocosas, puede ingresar a viviendas.',
+      primerosAuxilios: 'Mantener al paciente calmado, inmovilizar, ir a hospital para suero.',
+      rutaImagen: '/images/animals/alacran-noxius.jpg',
+      peligrosidad: 3,
+      categoria: 3,
     },
   });
 
-  const saltarina = await prisma.animal.create({
+  const alacranRayado = await prisma.animal.create({
     data: {
-      nombreComun: 'Araña Saltarina',
-      nombreCientifico: 'Salticidae',
-      esVenenoso: false,
-      descripcion: 'Pequeña, peluda y con grandes ojos frontales. Es inofensiva y curiosa.',
-      habitat: 'Jardines, muros soleados, interior de casas.',
-      primerosAuxilios: 'Lavar con agua y jabón. No requiere atención médica urgente.',
-      rutaImagenCard: '/images/animals/saltarina.jpg',
+      nombreComun: 'Alacrán rayado',
+      nombreCientifico: 'Centruroides vittatus',
+      descripcion: 'Escorpión con toxicidad variable según edad y ejemplar.',
+      habitat: 'Matorrales, zonas rurales, terrenos rocosos.',
+      primerosAuxilios: 'Reposo, hielo, observación y evaluación médica si hay síntomas severos.',
+      rutaImagen: '/images/animals/alacran-vittatus.jpg',
+      peligrosidad: 2,
+      categoria: 3,
     },
   });
+
+  const alacranCorteza = await prisma.animal.create({
+    data: {
+      nombreComun: 'Alacrán de la corteza',
+      nombreCientifico: 'Centruroides infamatus',
+      descripcion: 'Escorpión que habita bajo la corteza de árboles o rocas; moderadamente venenoso.',
+      habitat: 'Grietas rocosas y cortezas de árboles en zonas rurales.',
+      primerosAuxilios: 'Inmovilizar, aplicar frío local, acudir a centro médico en caso de síntomas.',
+      rutaImagen: '/images/animals/alacran-infamatus.jpg',
+      peligrosidad: 2,
+      categoria: 3,
+    },
+  });
+
+  const alacranCuerpoNegro = await prisma.animal.create({
+    data: {
+      nombreComun: 'Alacrán de la corteza de cuerpo negro',
+      nombreCientifico: 'Centruroides edwardsii',
+      descripcion: 'Alacrán de color oscuro, presente en barrancas rocosas; veneno moderado.',
+      habitat: 'Barrancas, grietas rocosas de zonas secas.',
+      primerosAuxilios: 'Limpiar la zona, inmovilizar, aplicar hielo y buscar ayuda médica.',
+      rutaImagen: '/images/animals/alacran-edwardsii.jpg',
+      peligrosidad: 2,
+      categoria: 3,
+    },
+  });
+
+  // Reptiles — serpientes venenosas
+
+  const cascabelSierra = await prisma.animal.create({
+    data: {
+      nombreComun: 'Cascabel de la sierra',
+      nombreCientifico: 'Crotalus atrox',
+      descripcion: 'Víbora de cascabel con veneno mixto (hemotóxico y citotóxico), produce dolor y posible necrosis.',
+      habitat: 'Laderas rocosas, matorrales áridos.',
+      primerosAuxilios: 'Inmovilizar la extremidad, no usar torniquete fuerte, transporte inmediato para suero antiofídico.',
+      rutaImagen: '/images/animals/crotalus-atrox.jpg',
+      peligrosidad: 3,
+      categoria: 2,
+    },
+  });
+
+  const cascabelVerde = await prisma.animal.create({
+    data: {
+      nombreComun: 'Cascabel verde',
+      nombreCientifico: 'Crotalus lepidus',
+      descripcion: 'Pequeña víbora de montaña; su veneno puede producir hinchazón local y dolor.',
+      habitat: 'Altitudes rocosas en montaña.',
+      primerosAuxilios: 'Mantener la calma, inmovilizar, buscar atención médica para suero.',
+      rutaImagen: '/images/animals/crotalus-lepidus.jpg',
+      peligrosidad: 2,
+      categoria: 2,
+    },
+  });
+
+  const cascabelMojave = await prisma.animal.create({
+    data: {
+      nombreComun: 'Cascabel Mojave',
+      nombreCientifico: 'Crotalus scutulatus',
+      descripcion: 'Víbora altamente peligrosa: en algunas poblaciones su veneno tiene componente neurotóxico.',
+      habitat: 'Regiones semidesérticas y áridas.',
+      primerosAuxilios: 'Inmovilizar, monitorear respiración, transporte urgente para suero y soporte vital.',
+      rutaImagen: '/images/animals/crotalus-scutulatus.jpg',
+      peligrosidad: 3,
+      categoria: 2,
+    },
+  });
+
+  const cascabelColaNegra = await prisma.animal.create({
+    data: {
+      nombreComun: 'Cascabel cola negra',
+      nombreCientifico: 'Crotalus molossus',
+      descripcion: 'Víbora de cascabel con veneno que provoca dolor, inflamación local y efectos sistémicos leves.',
+      habitat: 'Zonas rocosas y semiáridas.',
+      primerosAuxilios: 'Inmovilizar la extremidad, mantener al paciente tranquilo, acudir a hospital para suero si es necesario.',
+      rutaImagen: '/images/animals/crotalus-molossus.jpg',
+      peligrosidad: 2,
+      categoria: 2,
+    },
+  });
+
+  const cascabelMoteada = await prisma.animal.create({
+    data: {
+      nombreComun: 'Cascabel moteada',
+      nombreCientifico: 'Crotalus pricei',
+      descripcion: 'Víbora de montaña, menor tamaño; mordedura puede provocar efectos locales moderados.',
+      habitat: 'Rocosos a gran altitud, sierra.',
+      primerosAuxilios: 'Vendaje ligero, inmovilización, llevar a un hospital para valoración y suero.',
+      rutaImagen: '/images/animals/crotalus-pricei.jpg',
+      peligrosidad: 2,
+      categoria: 2,
+    },
+  });
+
+  const cascabelColaLargaSinaloense = await prisma.animal.create({
+    data: {
+      nombreComun: 'Cascabel sinaloense de cola larga',
+      nombreCientifico: 'Crotalus stejnegeri',
+      descripcion: 'Víbora con larga cola; veneno clínicamente importante en su región de distribución.',
+      habitat: 'Quebradas y pendientes serranas.',
+      primerosAuxilios: 'Inmovilizar, aplicar frío ligero, transferir a un centro con suero antiofídico.',
+      rutaImagen: '/images/animals/crotalus-stejnegeri.jpg',
+      peligrosidad: 3,
+      categoria: 2,
+    },
+  });
+
+  const cascabelNarizPuntiaguda = await prisma.animal.create({
+    data: {
+      nombreComun: 'Cascabel nariz puntiaguda',
+      nombreCientifico: 'Crotalus willardi',
+      descripcion: 'Víbora de montaña con nariz prominente; envenenamiento requiere atención especializada.',
+      habitat: 'Sierra Madre Occidental, altitudes altas.',
+      primerosAuxilios: 'Mantener la calma, inmovilizar, trasladar a hospital para suero y observación.',
+      rutaImagen: '/images/animals/crotalus-willardi.jpg',
+      peligrosidad: 2,
+      categoria: 2,
+    },
+  });
+
+  const lagartoEnchaquirado = await prisma.animal.create({
+    data: {
+      nombreComun: 'Lagarto enchaquirado',
+      nombreCientifico: 'Heloderma horridum',
+      descripcion: 'Lagarto venenoso de glándulas venenosas; su mordida puede provocar dolor y efectos sistémicos.',
+      habitat: 'Regiones rocosas y ribereñas en zonas serranas.',
+      primerosAuxilios: 'Lavar la herida, inmovilizar la zona, buscar atención médica inmediatamente.',
+      rutaImagen: '/images/animals/heloderma-horridum.jpg',
+      peligrosidad: 3,
+      categoria: 2,
+    },
+  });
+
+  const coralillo = await prisma.animal.create({
+    data: {
+      nombreComun: 'Coralillo',
+      nombreCientifico: 'Micrurus tener',
+      descripcion: 'Serpiente elápida con veneno neurotóxico; puede causar parálisis respiratoria.',
+      habitat: 'Hojarasca, troncos, zonas ribereñas.',
+      primerosAuxilios: 'No aplicar torniquetes ni succionar; inmovilizar y trasladar urgentemente para antiveneno y soporte respiratorio.',
+      rutaImagen: '/images/animals/micrurus-tener.jpg',
+      peligrosidad: 3,
+      categoria: 2,
+    },
+  });
+
+  // Otros (“varios”)
+
+  const abejaAfricanizada = await prisma.animal.create({
+    data: {
+      nombreComun: 'Abeja africanizada',
+      nombreCientifico: 'Apis mellifera scutellata',
+      descripcion: 'Abeja cuya picadura en masa puede producir choque anafiláctico o asfixia por obstrucción de vías respiratorias.',
+      habitat: 'Colmenas en árboles o estructuras periurbanas/rurales.',
+      primerosAuxilios: 'Aplicar epinefrina si hay reacción alérgica, mantener vías respiratorias, enfriar la piel, traslado a hospital.',
+      rutaImagen: '/images/animals/abeja-africanizada.jpg',
+      peligrosidad: 3,
+      categoria: 4,
+    },
+  });
+
+  const avispaPolistes = await prisma.animal.create({
+    data: {
+      nombreComun: 'Avispa Polistes',
+      nombreCientifico: 'Polistes spp.',
+      descripcion: 'Avispa que puede picar varias veces; su picadura es dolorosa y puede desencadenar alergia grave.',
+      habitat: 'Tejados, ramas, rincones al aire libre.',
+      primerosAuxilios: 'Limpiar la zona, aplicar frío local, observar signos de reacción alérgica, epinefrina si es necesario.',
+      rutaImagen: '/images/animals/polistes.jpg',
+      peligrosidad: 2,
+      categoria: 4,
+    },
+  });
+
+  const ciempiésGigante = await prisma.animal.create({
+    data: {
+      nombreComun: 'Ciempiés gigante',
+      nombreCientifico: 'Scolopendra viridis',
+      descripcion: 'Ciempiés grande que inyecta veneno con dolor muy intenso y posible reacción sistémica leve.',
+      habitat: 'Suelo, hojarasca, troncos y rocas de zonas montañosas.',
+      primerosAuxilios: 'Limpiar la herida, aplicar frío local, inmovilizar, analgesia y observación médica.',
+      rutaImagen: '/images/animals/ciempiés-viridis.jpg',
+      peligrosidad: 2,
+      categoria: 4,
+    },
+  });
+
 
   // 4. RELACIONAR ANIMALES CON ANTÍDOTOS
   await prisma.animalAntidoto.createMany({
     data: [
-      { animalId: viudaNegra.id, antidotoId: sueroPolivalente.id },
-      { animalId: violinista.id, antidotoId: sueroPolivalente.id },
+      { animalId: alacranDurango.id, antidotoId: sueroPolivalente.id },
+      { animalId: avispaPolistes.id, antidotoId: sueroPolivalente.id },
     ],
   });
 
@@ -505,8 +695,6 @@ const hospitalesData = [
     data: {
       name: 'Estudiante Demo',
       email: 'demo@aracnoscan.com',
-      emailVerified: new Date(),
-      image: 'https://i.pravatar.cc/150?img=11',
     },
   });
 
@@ -514,26 +702,11 @@ const hospitalesData = [
   await prisma.animalDesbloqueado.create({
     data: {
       usuarioId: usuarioDemo.id,
-      animalId: saltarina.id,
+      animalId: alacranDurango.id,
     },
   });
 
-  // 9. SIMULAR UN ANÁLISIS
-  await prisma.analisis.create({
-    data: {
-      usuarioId: usuarioDemo.id,
-      rutaImagen: '/uploads/analisis/scan_001.jpg',
-      latitudUsuario: 19.4326,
-      longitudUsuario: -99.1332,
-      animalDetectadoId: viudaNegra.id,
-      esVenenosoDetectado: true,
-      confianzaIA: 0.98,
-      descripcionIA: 'Alta probabilidad de Latrodectus mactans por patrón abdominal.',
-      primerosAuxiliosIA: 'Busque atención médica inmediata. No aplique torniquetes.',
-      antidotoSugeridoId: sueroPolivalente.id,
-      hospitalRecomendadoId: hospitalesCreados[0].id, // Usar el primer hospital
-    },
-  });
+
 
   console.log(`✅ Seed completado exitosamente. ${hospitalesData.length} hospitales creados.`);
 }

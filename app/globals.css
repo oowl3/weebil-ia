@@ -11,6 +11,7 @@
   --blue-strong: #112A46;
 
   /* Tonos intensos */
+  --intense-pink-cl: #fdd3db;
   --intense-pink: #D92B4B;
   --intense-red: #EA4335;
 
@@ -47,4 +48,3 @@ body {
   color: var(--foreground);
   font-family: var(--font-manrope);
 }
-

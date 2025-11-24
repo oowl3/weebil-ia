@@ -12,24 +12,24 @@ datasource db {
 // ==========================================
 
 model UsuarioToken {
-  id        BigInt   @id @default(autoincrement()) // BigInt solicitado
-  token     String   @unique
-  creadoEn  DateTime @default(now())
+  id       BigInt   @id @default(autoincrement()) // BigInt solicitado
+  token    String   @unique
+  creadoEn DateTime @default(now())
 
   // Relación 1 a 1: Un token pertenece a un solo usuario
-  usuarioId String   @unique 
-  usuario   User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId String @unique
+  usuario   User   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("usuario_tokens")
 }
 
 model User {
-  id       String  @id @default(cuid())
-  name     String?
-  email    String? @unique
-  
+  id    String  @id @default(cuid())
+  name  String?
+  email String? @unique
+
   // Relación con Auth
-  tokenSesion UsuarioToken? 
+  tokenSesion UsuarioToken?
 
   // Relación con Negocio (Pokedex)
   animalesDesbloqueados AnimalDesbloqueado[]
@@ -48,18 +48,18 @@ model Animal {
   descripcion      String?
   habitat          String?
   primerosAuxilios String?
-  rutaImagen       String?  
+  rutaImagen       String?
   creadoEn         DateTime @default(now())
 
   // Nuevos Campos de Clasificación (Ints)
   // Peligrosidad: 1=Verde, 2=Amarillo, 3=Rojo (Peligroso)
-  peligrosidad     Int      @default(1) 
+  peligrosidad Int @default(1)
   // Categoria: 1=Araña, 2=Reptil, etc.
-  categoria        Int      @default(1)
+  categoria    Int @default(1)
 
   // Relaciones
-  animalAntidoto   AnimalAntidoto[]
-  desbloqueadoPor  AnimalDesbloqueado[]
+  animalAntidoto  AnimalAntidoto[]
+  desbloqueadoPor AnimalDesbloqueado[]
 
   @@map("animales")
 }
@@ -102,14 +102,14 @@ model AnimalAntidoto {
 }
 
 model Hospital {
-  id                 Int       @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   nombre             String
   direccion          String
   telefono           String?
   latitud            Float
   longitud           Float
   ultimaVerificacion DateTime?
-  creadoEn           DateTime  @default(now())
+  creadoEn           DateTime @default(now())
 
   hospitalAntidoto HospitalAntidoto[]
 
@@ -127,4 +127,18 @@ model HospitalAntidoto {
 
   @@id([hospitalId, antidotoId])
   @@map("hospitales_antidotos")
+}
+
+// ==========================================
+// MÓDULO DE INFORMACIÓN (FAQ / AYUDA)
+// ==========================================
+
+model Faq {
+  id        Int      @id @default(autoincrement())
+  pregunta  String
+  respuesta String   @db.Text // Permite textos largos para explicaciones detalladas
+  orden     Int?     @default(0) // Para controlar qué preguntas salen primero en la UI
+  creadoEn  DateTime @default(now())
+
+  @@map("faqs")
 }

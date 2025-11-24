@@ -54,7 +54,7 @@ model Animal {
   // Nuevos Campos de Clasificación (Ints)
   // Peligrosidad: 1=Verde, 2=Amarillo, 3=Rojo (Peligroso)
   peligrosidad Int @default(1)
-  // Categoria: 1=Araña, 2=Reptil, etc.
+  // Categoria: 1=Araña, 2=Reptiles 3=Alacranes 4=Varios, 
   categoria    Int @default(1)
 
   // Relaciones

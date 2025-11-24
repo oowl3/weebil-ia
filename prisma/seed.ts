@@ -228,6 +228,8 @@ async function main() {
       peligrosidad: 3,
       categoria: 4,
     },
+
+    //1=Araña 2=reptiles 3=Alacrán 4= varios
   });
 
   const avispaPolistes = await prisma.animal.create({

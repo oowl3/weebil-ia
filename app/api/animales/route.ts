@@ -1,84 +1,83 @@
 import { NextResponse } from 'next/server';
-
 import { Prisma } from '@prisma/client'; 
-import prisma from '../../../lib/prisma';
+import prisma from '../../../lib/prisma'; // Ajusta la ruta si es necesario
 import { z } from 'zod'; 
 
+// ==================================================================
+//  ESQUEMAS DE VALIDACIÓN (ZOD)
+// ==================================================================
 
+// 1. Schema para Query Params (GET)
 const querySchema = z.object({
-  // z.coerce.boolean() convierte "true" a true, "false" a false
-  esVenenoso: z.coerce.boolean().optional(),
+  // coerce.number() transforma el string "2" de la URL a el número 2
+  peligrosidad: z.coerce.number().min(1).max(3).optional(),
   
-  // z.string().optional() permite que la búsqueda sea opcional
+  // Mantenemos la búsqueda por nombre
   nombreComun: z.string().optional(),
 });
 
-
-// Valida el JSON que envías para crear un nuevo animal
+// 2. Schema para Crear Animal (POST)
 const animalCreateSchema = z.object({
   nombreComun: z.string().min(1, "El nombre común es requerido"),
   nombreCientifico: z.string().optional(),
-  esVenenoso: z.boolean().optional(),
   descripcion: z.string().optional(),
   habitat: z.string().optional(),
   primerosAuxilios: z.string().optional(),
-  rutaImagenCard: z.string().optional(),
+  rutaImagen: z.string().optional(), // Nota: En tu schema dice 'rutaImagen', en tu Zod anterior decia 'rutaImagenCard'. Lo corregí al schema.
+  
+  // Nuevos campos numéricos según tu Schema
+  peligrosidad: z.number().int().min(1).max(3).default(1), // 1=Verde, 2=Amarillo, 3=Rojo
+  categoria: z.number().int().default(1), // 1=Araña, etc.
 });
-
 
 // ==================================================================
 //   API Handler para OBTENER animales (GET)
 // ==================================================================
 export async function GET(request: Request) {
   try {
-    // 1. Obtener y validar los query parameters de la URL
     const { searchParams } = new URL(request.url);
     const queryParams = Object.fromEntries(searchParams.entries());
 
-    // 2. Validar con Zod
+    // Validar parámetros
     const validation = querySchema.safeParse(queryParams);
 
-    // Si la validación falla, retorna un error 400 (Bad Request)
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Parámetros de query inválidos", detalles: validation.error.issues }, 
+        { error: "Parámetros inválidos", detalles: validation.error.issues }, 
         { status: 400 }
       );
     }
 
-    // 3. Extraer los datos validados
-    const { esVenenoso, nombreComun } = validation.data;
+    const { peligrosidad, nombreComun } = validation.data;
 
-    // 4. Construir la cláusula 'where' de Prisma dinámicamente
+    // Construcción dinámica del filtro
     const whereClause: Prisma.AnimalWhereInput = {};
 
-    // 5. Añadir filtros a la cláusula SOLO si fueron proporcionados
-    if (esVenenoso !== undefined) {
-      whereClause.esVenenoso = esVenenoso;
+    // Filtro por Nivel de Peligrosidad (Exacto)
+    // Ejemplo: ?peligrosidad=3 trae solo los de nivel rojo
+    if (peligrosidad !== undefined) {
+      whereClause.peligrosidad = peligrosidad;
     }
+
+    // Filtro por Nombre (Insensitive)
     if (nombreComun) {
       whereClause.nombreComun = {
-        // "contains" para búsqueda de texto (LIKE '%nombre%')
-        // "mode: 'insensitive'" para ignorar mayúsculas/minúsculas (A a Z)
         contains: nombreComun,
         mode: 'insensitive', 
       };
     }
 
-    // 6. Llamar a Prisma con los filtros dinámicos
     const animales = await prisma.animal.findMany({
-      where: whereClause, // ¡Aquí aplicamos los filtros!
-      orderBy: { id: 'asc' }, // Ordenados por ID (1, 2, 3...)
+      where: whereClause,
+      orderBy: { id: 'asc' },
     });
 
-    // 7. Retorna la respuesta en JSON
     return NextResponse.json(animales);
 
   } catch (error) {
-    // 8. Manejo de errores
     console.error('Error al obtener animales:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor al obtener el catálogo.' },
+      { error: 'Error interno del servidor.' },
       { status: 500 }
     );
   }
@@ -89,29 +88,26 @@ export async function GET(request: Request) {
 // ==================================================================
 export async function POST(request: Request) {
   try {
-    // 1. Obtener el body (el JSON de la Viuda Negra)
     const body = await request.json();
 
-    // 2. Validar el body con el nuevo esquema de Zod
     const validation = animalCreateSchema.safeParse(body);
+    
     if (!validation.success) {
       return NextResponse.json(
         { error: "Datos de entrada inválidos", detalles: validation.error.issues },
-        { status: 400 } // 400 Bad Request
+        { status: 400 }
       );
     }
 
-    // 3. ¡Validación exitosa! Crear el animal en la BD
+    // Prisma infiere los tipos automáticamente gracias a que 'validation.data' 
+    // ahora coincide con el Schema real (Ints en lugar de Booleans)
     const nuevoAnimal = await prisma.animal.create({
-      data: validation.data, // validation.data son los datos limpios
+      data: validation.data,
     });
 
-    // 4. Retornar el animal recién creado
-    // 201 Created: El recurso se creó con éxito
     return NextResponse.json(nuevoAnimal, { status: 201 });
 
   } catch (error) {
-    // 5. Manejo de errores (ej: la BD falla)
     console.error('Error al crear animal:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor al crear el animal.' },

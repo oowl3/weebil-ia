@@ -1,29 +1,14 @@
 import React from 'react'
 import Link from 'next/link';
-import Logo from '../components/logo';
+import Header_a from '../components/Header_a';
 
 const Info = () => {
   return (
     <div className='min-h-screen bg-(--sand-3) px-5 py-8 pb-20 flex flex-col items-center'>
       {/* --- ENCABEZADO --- */}
-      <div className='flex items-end justify-center gap-1 mb-10 pt-4 bg-(--sand-3)'>
-          <div>
-            <Logo></Logo>
-          </div>
-
-            <div className='flex leading-none select-none'>
-              <span className="text-(--intense-pink) text-[60px]">W</span>
-              <span className="text-(--black-deep) text-[60px]">e</span>
-              <span className="text-(--black-deep) text-[60px]">e</span>
-              <span className="text-(--black-deep) text-[60px]">b</span>
-              <span className="text-(--green-light) text-[60px]">i</span>
-              <span className="text-(--green-light) text-[60px]">l</span>
-            </div>
-        </div>
-
+        <Header_a/>
         <div className='mt-10'></div>
 
-        {/* Titlo */}
         <div className='max-w-3xl mx-auto'>
           <h1>
             <span className='text-[30px] text-(--black-deep) tracking-tight leading-tight text-center block'>

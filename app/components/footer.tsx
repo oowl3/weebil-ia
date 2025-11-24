@@ -8,14 +8,12 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-[#FCF4EE] border-t border-stone-200 mt-20">
-
+      <div className="w-full h-px bg-(--intense-pink)" />
       {/* Contenedor Principal */}
         <div className="max-w-6xl mx-auto px-6 pt-20 pb-12">
         
-        {/* Layout General: 1 columna en móvil, 3 en PC */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 items-start">
 
-          {/* COLUMNA 1: Marca */}
           <div className="flex flex-col space-y-4">
             <div className="flex items-center gap-2">
               <div className="scale-90 origin-left">
@@ -28,15 +26,12 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* COLUMNA 2: Enlaces (AHORA EN REJILLA DE 2 COLUMNAS) */}
           <div className="flex flex-col space-y-4 md:pl-10">
             <h3 className="text-sm font-bold text-stone-900 uppercase tracking-wider">Explorar</h3>
             
-            {/* AQUÍ ESTÁ EL CAMBIO: grid-cols-2 para tener 2 elementos por renglón */}
             <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
               <FooterLink href="/sepalabola">Preguntas Frecuentes</FooterLink>
               <FooterLink href="/info">Privacidad y Condiciones</FooterLink>
-
             </ul>
           </div>
 
@@ -61,7 +56,7 @@ export default function Footer() {
       <div className="border-t border-stone-200/60 bg-[#F5EBE5]">
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-stone-500 font-medium">
-            © {currentYear} Weebil. By:Ranita-Marian-Alondra-Bichin-Morenaso
+            © {currentYear} Weebil. By:Ranita-Pandax-Alondra-Bichin-Morenaso
           </p>
           <p className="text-xs text-stone-400 flex items-center gap-1">
              Hecho con <span className="text-rose-500">♥</span> en La Laguna, MX
@@ -72,7 +67,6 @@ export default function Footer() {
   );
 }
 
-// Componente auxiliar para los links
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <li>

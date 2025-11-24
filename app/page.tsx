@@ -75,10 +75,12 @@ export default function Home() {
           {/* Optimización 4: Arbitrary Value para grow específico */}
           <div className="grow-7"></div>
             <div className="flex flex-col items-center pb-10">
-              <Link href="/Inicio" 
-              className="font-bold text-white py-5 px-24 bg-(--intense-pink) rounded-xl text-2xl active:scale-95 transition-all duration-150 select-none touch-manipulation shadow-lg hover:shadow-pink-500/50">
-                Continuar 
-              </Link>
+              <div className="font-bold text-white py-5 px-24 bg-(--intense-pink) rounded-xl text-2xl active:scale-95 transition-all duration-150 select-none touch-manipulation shadow-lg hover:shadow-pink-500/50">
+                <Link href="/Inicio">
+                  Continuar 
+                </Link>
+              </div>
+              
             </div>
           </div>
       </section>

@@ -7,7 +7,6 @@ async function main() {
 
   // 1. LIMPIEZA (Orden inverso para respetar Foreign Keys)
   await prisma.animalDesbloqueado.deleteMany();
-  await prisma.analisis.deleteMany();
   await prisma.hospitalAntidoto.deleteMany();
   await prisma.animalAntidoto.deleteMany();
   await prisma.hospital.deleteMany();
@@ -35,11 +34,10 @@ async function main() {
     data: {
       nombreComun: 'Viuda Negra',
       nombreCientifico: 'Latrodectus mactans',
-      esVenenoso: true,
       descripcion: 'Araña negra brillante con una marca roja en forma de reloj de arena en el abdomen.',
       habitat: 'Lugares oscuros y secos, garajes, sótanos.',
       primerosAuxilios: 'Lavar la zona, aplicar hielo, acudir a urgencias inmediatamente.',
-      rutaImagenCard: '/images/animals/viuda-negra.jpg',
+      rutaImagen: '/images/animals/viuda-negra.jpg',
     },
   });
 
@@ -47,11 +45,10 @@ async function main() {
     data: {
       nombreComun: 'Araña Violinista',
       nombreCientifico: 'Loxosceles reclusa',
-      esVenenoso: true,
       descripcion: 'Marrón con una marca en forma de violín en el cefalotórax. Su picadura causa necrosis.',
       habitat: 'Rincones, detrás de cuadros, ropa guardada.',
       primerosAuxilios: 'Aplicar hielo, no succionar veneno, ir al hospital.',
-      rutaImagenCard: '/images/animals/violinista.jpg',
+      rutaImagen: '/images/animals/violinista.jpg',
     },
   });
 
@@ -59,11 +56,10 @@ async function main() {
     data: {
       nombreComun: 'Araña Saltarina',
       nombreCientifico: 'Salticidae',
-      esVenenoso: false,
       descripcion: 'Pequeña, peluda y con grandes ojos frontales. Es inofensiva y curiosa.',
       habitat: 'Jardines, muros soleados, interior de casas.',
       primerosAuxilios: 'Lavar con agua y jabón. No requiere atención médica urgente.',
-      rutaImagenCard: '/images/animals/saltarina.jpg',
+      rutaImagen: '/images/animals/saltarina.jpg',
     },
   });
 
@@ -505,8 +501,6 @@ const hospitalesData = [
     data: {
       name: 'Estudiante Demo',
       email: 'demo@aracnoscan.com',
-      emailVerified: new Date(),
-      image: 'https://i.pravatar.cc/150?img=11',
     },
   });
 
@@ -518,22 +512,7 @@ const hospitalesData = [
     },
   });
 
-  // 9. SIMULAR UN ANÁLISIS
-  await prisma.analisis.create({
-    data: {
-      usuarioId: usuarioDemo.id,
-      rutaImagen: '/uploads/analisis/scan_001.jpg',
-      latitudUsuario: 19.4326,
-      longitudUsuario: -99.1332,
-      animalDetectadoId: viudaNegra.id,
-      esVenenosoDetectado: true,
-      confianzaIA: 0.98,
-      descripcionIA: 'Alta probabilidad de Latrodectus mactans por patrón abdominal.',
-      primerosAuxiliosIA: 'Busque atención médica inmediata. No aplique torniquetes.',
-      antidotoSugeridoId: sueroPolivalente.id,
-      hospitalRecomendadoId: hospitalesCreados[0].id, // Usar el primer hospital
-    },
-  });
+
 
   console.log(`✅ Seed completado exitosamente. ${hospitalesData.length} hospitales creados.`);
 }

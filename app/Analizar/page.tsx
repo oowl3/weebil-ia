@@ -22,6 +22,11 @@ interface AnalysisResult {
   nombre_cientifico: string;
   descripcion_pokedex: string;
   habitat: string;
+  metadata?: {
+    registradoEnBD: boolean;
+    animalId?: number;
+    desbloqueado?: boolean;
+  }
 }
 
 export default function ScannerPage() {
@@ -63,6 +68,11 @@ export default function ScannerPage() {
     formData.append("image", file);
     formData.append("guestId", guestId);
 
+    // 🔥 MANTENEMOS: Usar guestId como usuario temporal para usuarios no logueados
+    // Esto permite que los animales se registren en la BD globalmente
+    const usuarioTemporalId = `guest-${guestId}`;
+    formData.append("usuarioId", usuarioTemporalId);
+
     try {
       const response = await fetch("/api/analizar_g", {
         method: "POST",
@@ -76,6 +86,16 @@ export default function ScannerPage() {
       }
 
       setResult(data as AnalysisResult);
+      
+      // 🔥 QUITAMOS: Los alerts y console.logs visibles al usuario
+      // Solo mantenemos el logging interno para desarrollo
+      if (data.metadata?.registradoEnBD) {
+        console.log('✅ Nuevo animal registrado en la BD:', {
+          nombre: data.nombre_comun,
+          id: data.metadata.animalId
+        });
+      }
+
     } catch (error: any) {
       console.error("Error:", error);
       setErrorMsg(error.message || "Error de conexión al analizar la imagen.");
@@ -85,7 +105,6 @@ export default function ScannerPage() {
   };
 
   return (
-    // CAMBIO 1: Agregamos 'flex flex-col' al main para controlar la altura vertical
     <main className="min-h-dvh w-full max-w-md mx-auto relative bg-gray-50/50 flex flex-col">
         <Header_a/>
         
@@ -93,8 +112,8 @@ export default function ScannerPage() {
           Detector De Animales
         </h1>
         
-        {/* CAMBIO 2: Agregamos 'flex-1' aquí. Esto hace que este div crezca 
-            y ocupe todo el espacio vacío, empujando lo que siga (el registro) hasta el fondo */}
+        {/* 🔥 QUITAMOS: Todo el panel de debugging visual */}
+        
         <div className="px-5 pt-6 flex flex-col gap-5 flex-1">
 
              {/* --- INPUT CÁMARA --- */}
@@ -172,7 +191,7 @@ export default function ScannerPage() {
                  </p>
              </div>
              
-             {/* --- ERROR MESSAGE (Lo dejé aquí para que salga cerca de los inputs) --- */}
+             {/* --- ERROR MESSAGE --- */}
             {errorMsg && (
                 <div className="p-4 bg-red-50 text-red-800 rounded-xl border border-red-100 flex items-center gap-3 animate-in slide-in-from-bottom-2 shadow-sm">
                     <AlertTriangle size={20} className="shrink-0 text-red-500" />
@@ -181,15 +200,11 @@ export default function ScannerPage() {
             )}
 
         </div> 
-        {/* FIN DEL DIV CENTRAL (inputs) */}
 
-
-        {/* CAMBIO 3: MOVIMOS EL FOOTER FUERA DEL DIV DE INPUTS Y AL FINAL DEL MAIN */}
+        {/* --- FOOTER --- */}
         <div className="px-5 pb-8 pt-4 mt-auto">
-            {/* CORRECCIÓN: Usamos bg-[#D92B4B] directamente en className para asegurar el color */}
-            <div className="relative overflow-hidden  pt-6 text-white shadow-xl bg-[#D92B4B]">
+            <div className="relative overflow-hidden pt-6 text-white shadow-xl bg-[#D92B4B]">
                 
-                {/* Decoración de fondo (Opcional, para darle profundidad) */}
                 <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-3xl pointer-events-none pt-1" />
 
                 <div className="relative z-10 flex flex-col gap-3">
@@ -208,7 +223,6 @@ export default function ScannerPage() {
 
                     <Link 
                         href="/Registro"
-                        /* Agregamos 'block' y aseguramos la estructura flex */
                         className="mt-2 w-full block group relative h-10"
                     >
                         <div className="flex h-8 items-center justify-center gap-2 rounded-xl bg-white py-3 text-sm font-bold text-[#1e293b] transition-all hover:bg-gray-100 active:scale-95 shadow-sm">

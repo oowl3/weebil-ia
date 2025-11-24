@@ -40,17 +40,42 @@ PREGUNTA DEL USUARIO: ${mensajeUsuario}
 `
 }
 
-function extraerNombresAnimales(mensaje: string): string[] {
+// En lib/iaPromptBuilder.ts - Mejora la función
+export function extraerNombresAnimales(mensaje: string): string[] {
   const nombresComunes = [
-    'alacrán', 'escorpión', 'araña', 'cascabel', 'víbora', 'serpiente',
-    'lagarto', 'abeja', 'avispa', 'ciempiés', 'coralillo'
+    // Alacranes
+    'alacrán', 'escorpión', 'alacran', 'escorpion',
+    // Serpientes
+    'cascabel', 'víbora', 'serpiente', 'coralillo', 'boa', 'pitón', 'python',
+    // Arañas
+    'araña', 'tarántula', 'viuda negra', 'violinista', 'araña lobo', 'araña saltarina',
+    // Lagartos
+    'lagarto', 'iguana', 'camaleón', 'gecko', 'monstruo de gila', 
+    // Insectos
+    'abeja', 'avispa', 'avispón', 'hormiga', 'ciempiés', 'milpiés', 'escolopendra',
+    // Otros
+    'salamandra', 'sapo', 'rana', 'tritón', 'salamandra'
   ]
   
+  const mensajeLower = mensaje.toLowerCase()
   const encontrados = nombresComunes.filter(nombre => 
-    mensaje.toLowerCase().includes(nombre.toLowerCase())
+    mensajeLower.includes(nombre.toLowerCase())
   )
   
-  return encontrados
+  // También buscar patrones como "araña de [algo]" o "serpiente [nombre]"
+  const patrones = [
+    /(araña|alacrán|escorpión|serpiente|víbora)\s+de\s+([a-záéíóúñ]+)/gi,
+    /(cascabel)\s+([a-záéíóúñ]+)/gi
+  ]
+  
+  patrones.forEach(patron => {
+    const matches = mensaje.match(patron)
+    if (matches) {
+      encontrados.push(...matches.map(m => m.toLowerCase()))
+    }
+  })
+  
+  return [...new Set(encontrados)] // Eliminar duplicados
 }
 
 function construirContextoAnimales(animales: any[], ubicacion?: { latitud: number, longitud: number }) {

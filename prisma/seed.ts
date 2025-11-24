@@ -258,6 +258,45 @@ async function main() {
     },
   });
 
+  const viudaNegra = await prisma.animal.create({
+    data: {
+      nombreComun: 'Viuda negra',
+      nombreCientifico: 'Latrodectus mactans',
+      descripcion: 'Araña de color negro brillante con un característico reloj de arena rojo en el abdomen. Su veneno es neurotóxico y puede causar dolor intenso, espasmos musculares y síntomas sistémicos.',
+      habitat: 'Zonas oscuras, rincones, garajes, pilas de madera y áreas rurales.',
+      primerosAuxilios: 'Lavar el área con agua y jabón, mantener la calma, aplicar compresas frías y acudir por atención médica ante síntomas severos.',
+      rutaImagen: '/images/animals/viuda-negra.jpg',
+      peligrosidad: 3,
+      categoria: 3
+    },
+  });
+
+  const arañaViolinista = await prisma.animal.create({
+    data: {
+      nombreComun: 'Araña violinista',
+      nombreCientifico: 'Loxosceles reclusa',
+      descripcion: 'Araña de color café con una marca en forma de violín en el cefalotórax. Su veneno es necrotizante y puede causar lesiones graves en piel y tejidos.',
+      habitat: 'Casas, almacenes, rincones secos, grietas y detrás de muebles.',
+      primerosAuxilios: 'Lavar la herida, no aplicar calor, no presionar la zona, vigilar signos de necrosis y acudir a un centro médico.',
+      rutaImagen: '/images/animals/arana-violinista.jpg',
+      peligrosidad: 3,
+      categoria: 3
+    },
+  });
+
+  const viudaCafe = await prisma.animal.create({
+    data: {
+      nombreComun: 'Viuda café',
+      nombreCientifico: 'Latrodectus geometricus',
+      descripcion: 'Araña de color marrón o café con un patrón anaranjado o amarillo en el abdomen. Su veneno es neurotóxico, pero suele ser menos potente que el de la viuda negra.',
+      habitat: 'Esquinas de casas, techos, cobertizos y lugares secos.',
+      primerosAuxilios: 'Lavar el área afectada, aplicar frío local, evitar esfuerzos físicos y buscar atención médica si hay síntomas severos.',
+      rutaImagen: '/images/animals/viuda-cafe.jpg',
+      peligrosidad: 2,
+      categoria: 3
+    },
+  });
+
 
   // 4. RELACIONAR ANIMALES CON ANTÍDOTOS
   await prisma.animalAntidoto.createMany({

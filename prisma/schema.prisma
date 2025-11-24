@@ -4,10 +4,10 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") // ← ESTA LÍNEA ES NECESARIA EN PRISMA 6.x
 }
 
-// --- AUTH: Modelos Estándar de NextAuth (No los toques) ---
+// --- AUTH: Modelos Estándar de NextAuth ---
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -36,20 +36,18 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid()) // IDs como Strings (Mejor para Auth)
+  id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
-  image         String?   // Foto de perfil de Google
+  image         String?
   accounts      Account[]
   sessions      Session[]
-  
-  // --- TUS RELACIONES DE NEGOCIO ---
   analisis             Analisis[]
   animalesDesbloqueados AnimalDesbloqueado[]
-  conversacionesIA     ConversacionIA[] // RELACIÓN NUEVA
+  conversacionesIA     ConversacionIA[]
 
-  @@map("users") // Puedes llamar a la tabla "users" o "usuarios" si prefieres
+  @@map("users")
 }
 
 model VerificationToken {
@@ -60,30 +58,23 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// --- NUEVO MODELO PARA CONVERSACIONES CON IA ---
+// --- CONVERSACIONES CON IA ---
 model ConversacionIA {
   id                String   @id @default(cuid())
   creadoEn          DateTime @default(now())
-  
-  // Relación con usuario (puede ser nulo para invitados)
   usuarioId         String?
   usuario           User?    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  
-  // Para invitados
   guestId           String?
-  
-  // Entrada del usuario
   mensajeUsuario    String   @db.Text
-  
-  // Respuesta de la IA
   respuestaIA       String   @db.Text
-  modeloIA          String?  // "gpt-4", "claude", etc.
+  modeloIA          String?
   tokensUtilizados  Int?
-  
-  // Metadata adicional
-  tipoConsulta      String?  // "identificacion", "informacion", "primeros_auxilios", etc.
+  tipoConsulta      String?
   animalReferenciadoId Int?
   animalReferenciado Animal? @relation(fields: [animalReferenciadoId], references: [id])
+  
+  // RELACIÓN INVERSA CON ANALISIS (uno-a-muchos)
+  analisisRelacionados Analisis[]
 
   @@index([usuarioId])
   @@index([guestId])
@@ -91,8 +82,7 @@ model ConversacionIA {
   @@map("conversaciones_ia")
 }
 
-// --- DOMINIO: Tu Lógica de Negocio (AracnoScan) ---
-
+// --- DOMINIO: Lógica de Negocio ---
 model Animal {
   id                Int      @id @default(autoincrement()) 
   nombreComun       String
@@ -103,21 +93,18 @@ model Animal {
   primerosAuxilios  String?
   rutaImagenCard    String?
   creadoEn          DateTime @default(now())
-
-  // Relaciones
   animalAntidoto    AnimalAntidoto[]
   analisis          Analisis[]
   desbloqueadoPor   AnimalDesbloqueado[]
-  conversacionesReferenciadas ConversacionIA[] // RELACIÓN NUEVA
+  conversacionesReferenciadas ConversacionIA[]
 
   @@map("animales")
 }
 
 model AnimalDesbloqueado {
-  usuarioId String   // Cambio a String para coincidir con User.id
+  usuarioId String
   animalId  Int 
   desbloqueadoEn DateTime @default(now())
-
   usuario   User    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   animal    Animal  @relation(fields: [animalId], references: [id], onDelete: Cascade)
 
@@ -130,7 +117,6 @@ model Antidoto {
   nombre            String   @unique
   descripcion       String?
   creadoEn          DateTime @default(now())
-
   animalAntidoto    AnimalAntidoto[]
   hospitalAntidoto  HospitalAntidoto[]
   analisisSugeridos Analisis[]
@@ -141,7 +127,6 @@ model Antidoto {
 model AnimalAntidoto {
   animalId    Int 
   antidotoId  Int 
-
   animal      Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
   antidoto    Antidoto @relation(fields: [antidotoId], references: [id], onDelete: Cascade)
 
@@ -158,7 +143,6 @@ model Hospital {
   longitud           Float
   ultimaVerificacion DateTime?
   creadoEn           DateTime @default(now())
-
   hospitalAntidoto     HospitalAntidoto[]
   analisisRecomendados Analisis[]
 
@@ -169,7 +153,6 @@ model HospitalAntidoto {
   hospitalId Int 
   antidotoId Int 
   stock      Int?     @default(0)
-
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   antidoto   Antidoto @relation(fields: [antidotoId], references: [id], onDelete: Cascade)
 
@@ -183,30 +166,21 @@ model Analisis {
   rutaImagen        String
   latitudUsuario    Float?
   longitudUsuario   Float?
-
-  // --- Relación con Usuario ---
-  // OJO: userId puede ser nulo si es un invitado (guest)
   usuarioId         String?  
   usuario           User?    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  
-  // Para invitados
   guestId           String?
-
-  // --- Resultado IA ---
   animalDetectadoId     Int? 
   animalDetectado       Animal?   @relation(fields: [animalDetectadoId], references: [id], onDelete: SetNull)
   esVenenosoDetectado   Boolean?
   descripcionIA         String?
   primerosAuxiliosIA    String?
   confianzaIA           Float?
-
-  // --- Recomendaciones ---
   antidotoSugeridoId    Int? 
   antidotoSugerido      Antidoto? @relation(fields: [antidotoSugeridoId], references: [id], onDelete: SetNull)
   hospitalRecomendadoId Int? 
   hospitalRecomendado   Hospital? @relation(fields: [hospitalRecomendadoId], references: [id], onDelete: SetNull)
-
-  // NUEVO: Relación con conversación IA
+  
+  // Relación con conversación IA (uno-a-muchos)
   conversacionIAId String?
   conversacionIA   ConversacionIA? @relation(fields: [conversacionIAId], references: [id])
 

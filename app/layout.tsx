@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope, Instrument_Sans } from "next/font/google";
 import "./globals.css";
+import Footer from "./components/footer";
+
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -30,6 +32,7 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${instrumentSans.variable} antialiased`}>
         {children}
+        <Footer />
       </body>
     </html>
   );

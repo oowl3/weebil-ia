@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client'; 
-import prisma from '../../../lib/prisma'; // Ajusta la ruta si es necesario
+import prisma from '@/lib/prisma'; // Asegúrate que el alias @ o la ruta relativa sea correcta
 import { z } from 'zod'; 
 
 // ==================================================================
@@ -9,10 +9,7 @@ import { z } from 'zod';
 
 // 1. Schema para Query Params (GET)
 const querySchema = z.object({
-  // coerce.number() transforma el string "2" de la URL a el número 2
   peligrosidad: z.coerce.number().min(1).max(3).optional(),
-  
-  // Mantenemos la búsqueda por nombre
   nombreComun: z.string().optional(),
 });
 
@@ -23,9 +20,7 @@ const animalCreateSchema = z.object({
   descripcion: z.string().optional(),
   habitat: z.string().optional(),
   primerosAuxilios: z.string().optional(),
-  rutaImagen: z.string().optional(), // Nota: En tu schema dice 'rutaImagen', en tu Zod anterior decia 'rutaImagenCard'. Lo corregí al schema.
-  
-  // Nuevos campos numéricos según tu Schema
+  rutaImagen: z.string().optional(),
   peligrosidad: z.number().int().min(1).max(3).default(1), // 1=Verde, 2=Amarillo, 3=Rojo
   categoria: z.number().int().default(1), // 1=Araña, etc.
 });
@@ -36,36 +31,31 @@ const animalCreateSchema = z.object({
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const queryParams = Object.fromEntries(searchParams.entries());
-
-    // Validar parámetros
-    const validation = querySchema.safeParse(queryParams);
+    
+    // Parseo seguro de parámetros
+    const validation = querySchema.safeParse(Object.fromEntries(searchParams.entries()));
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Parámetros inválidos", detalles: validation.error.issues }, 
+        { error: "Parámetros de entrada inválidos", detalles: validation.error.issues }, 
         { status: 400 }
       );
     }
 
     const { peligrosidad, nombreComun } = validation.data;
 
-    // Construcción dinámica del filtro
-    const whereClause: Prisma.AnimalWhereInput = {};
-
-    // Filtro por Nivel de Peligrosidad (Exacto)
-    // Ejemplo: ?peligrosidad=3 trae solo los de nivel rojo
-    if (peligrosidad !== undefined) {
-      whereClause.peligrosidad = peligrosidad;
-    }
-
-    // Filtro por Nombre (Insensitive)
-    if (nombreComun) {
-      whereClause.nombreComun = {
-        contains: nombreComun,
-        mode: 'insensitive', 
-      };
-    }
+    // CONSTRUCCIÓN DINÁMICA DEL FILTRO (Type-Safe)
+    // Usamos spread operator condicional para evitar asignar 'undefined' a campos que Prisma podría no esperar así
+    // si los tipos no están regenerados.
+    const whereClause: Prisma.AnimalWhereInput = {
+      ...(peligrosidad !== undefined && { peligrosidad }), 
+      ...(nombreComun && {
+        nombreComun: {
+          contains: nombreComun,
+          mode: 'insensitive',
+        },
+      }),
+    };
 
     const animales = await prisma.animal.findMany({
       where: whereClause,
@@ -75,7 +65,7 @@ export async function GET(request: Request) {
     return NextResponse.json(animales);
 
   } catch (error) {
-    console.error('Error al obtener animales:', error);
+    console.error('Excepción en controlador GET /animales:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor.' },
       { status: 500 }
@@ -99,8 +89,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prisma infiere los tipos automáticamente gracias a que 'validation.data' 
-    // ahora coincide con el Schema real (Ints en lugar de Booleans)
+    // Al usar validation.data, pasamos datos limpios y tipados
     const nuevoAnimal = await prisma.animal.create({
       data: validation.data,
     });

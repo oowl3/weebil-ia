@@ -5,7 +5,7 @@ export default function Home() {
   const cardsData = [
     { id: 1,
       title: "¿Qué es Weebil?",
-      description: "Weebil es tu compañero inteligente para identificar especies peligrosas en tiempo real usando tecnología de vanguardia.",
+      description: "Weebil es tu guardián inteligente: una herramienta que identifica especies peligrosas al instante y te ayuda a mantenerte seguro en cualquier entorno.",
       imgBack: "/images/tarjeta1/cielo_background.avif",
       imgMid: "/images/tarjeta1/mont_v.avif",
       imgFore: "/images/tarjeta1/puente_durango.avif",
@@ -13,7 +13,7 @@ export default function Home() {
     },
     { id: 2,
       title: "¿Qué hace?",
-      description: "Simplemente apunta tu cámara hacia cualquier especie y nuestra IA analizará instantáneamente para darte información precisa.",
+      description: "Solo apunta la cámara y deja que nuestra IA analice lo que ves. En segundos sabrás qué especie es y qué tan peligrosa puede ser",
       imgBack: "/images/tarjeta2/cielo_bg2.avif",
       imgMid: "/images/tarjeta2/mont_md2.avif",
       imgFore: "/images/tarjeta2/desierto.avif",
@@ -21,7 +21,7 @@ export default function Home() {
     },
     { id: 3,
       title: "¿Qué resuelve?",
-      description: "Recibe alertas inmediatas, información de primeros auxilios y recomendaciones de acción cuando detectamos una especie peligrosa.",
+      description: "Te avisamos al momento si estás frente a una especie de riesgo y te guiamos con pasos claros para protegerte y actuar sin pánico",
       imgBack: "/images/tarjeta3/cielo_3.avif",
       imgMid: "/images/tarjeta3/arena_md.avif",
       imgFore: "/images/tarjeta3/arboles.avif",
@@ -73,15 +73,15 @@ export default function Home() {
           </div>
 
           {/* Optimización 4: Arbitrary Value para grow específico */}
-          <div className="grow-7"></div>
-            <div className="flex flex-col items-center pb-10">
-              <div className="font-bold text-white py-5 px-24 bg-(--intense-pink) rounded-xl text-2xl active:scale-95 transition-all duration-150 select-none touch-manipulation shadow-lg hover:shadow-pink-500/50">
-                <Link href="/Inicio">
+          <div className="flex flex-col items-center pb-4">
+            <div className="h-100"></div> 
+              <div className="text-white text-[30px] font-semi-bold py-5 px-36 rounded-xl bg-(--intense-pink) text-center block text-lg shadow-md active:scale-95">
+                <Link href="/Inicio" className="block w-50 max-w-xs mx-auto">
                   Continuar 
                 </Link>
               </div>
-              
             </div>
+          <div className="grow-3"></div>
           </div>
       </section>
 

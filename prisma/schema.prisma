@@ -1,12 +1,11 @@
-datasource db {
-  provider = "postgresql"
-  // Reintroduce esta línea para satisfacer al validador de Vercel
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
+
+datasource db {
+  provider = "postgresql"
+}
+
 // ==========================================
 // 1. MÓDULO DE AUTENTICACIÓN (ESTÁNDAR NEXT-AUTH)
 // ==========================================
@@ -87,22 +86,23 @@ enum CategoriaAnimal {
 }
 
 model Animal {
-  id               Int             @id @default(autoincrement())
+
+  id               Int      @id @default(autoincrement())
   nombreComun      String
   nombreCientifico String?
   descripcion      String?
   habitat          String?
-  primerosAuxilios String?         @db.Text
+  primerosAuxilios String?
   rutaImagen       String?
-  creadoEn         DateTime        @default(now())
-
-  // Clasificación robusta
-  peligrosidad     Peligrosidad    @default(BAJA)
-  categoria        CategoriaAnimal @default(ARANA)
+  creadoEn         DateTime @default(now())
+  // Peligrosidad: 1=Verde, 2=Amarillo, 3=Rojo (Peligroso)
+  peligrosidad Int @default(1)
+  // Categoria: 1=Araña, 2=Reptil, etc.
+  categoria    Int @default(1)
 
   // Relaciones
-  animalAntidoto     AnimalAntidoto[]
-  desbloqueadoPor    AnimalDesbloqueado[]
+  animalAntidoto  AnimalAntidoto[]
+  desbloqueadoPor AnimalDesbloqueado[]
 
   @@map("animales")
 }
@@ -174,6 +174,8 @@ model Faq {
   id        Int      @id @default(autoincrement())
   pregunta  String
   respuesta String   @db.Text
+  orden     Int?     @default(0)
+  creadoEn  DateTime @default(now())
 
   @@map("faqs")
 }

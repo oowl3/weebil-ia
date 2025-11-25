@@ -1,50 +1,8 @@
-import NextAuth, { AuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-// Importamos desde tu nuevo archivo en la raíz 'lib'
-import { prisma } from "@/lib/prisma";
+import NextAuth from "next-auth";
+import { authOptions } from "@/lib/auth"; // Importamos la configuración que acabamos de crear
 
-export const authOptions: AuthOptions = {
-  // 1. Conectamos el Adapter
-  adapter: PrismaAdapter(prisma),
-
-  // 2. Proveedores (Google)
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code",
-        },
-      },
-    }),
-  ],
-
-  // 3. Sesión en Base de Datos
-  session: {
-    strategy: "database",
-  },
-
-  // 4. Callbacks (Inyectar ID)
-  callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-      }
-      return session;
-    },
-  },
-
-  // 5. Páginas personalizadas
-  pages: {
-    signIn: '/Registro',
-    error: '/Registro',
-  },
-};
-
+// Inicializamos NextAuth con nuestra configuración
 const handler = NextAuth(authOptions);
 
+// Exportamos los métodos HTTP que Next.js necesita para manejar las peticiones
 export { handler as GET, handler as POST };

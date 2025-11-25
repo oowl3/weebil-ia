@@ -1,8 +1,8 @@
-import React from 'react'
+
 import Link from 'next/link';
 import Header_a from '../components/Header_a';
 
-const Info = () => {
+const Informacion = () => {
   return (
     <div className='min-h-screen bg-(--sand-3) px-5 py-8 pb-20 flex flex-col items-center'>
       {/* --- ENCABEZADO --- */}
@@ -243,4 +243,4 @@ const Info = () => {
   );
 };
 
-export default Info;
+export default Informacion;

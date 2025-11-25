@@ -20,7 +20,7 @@ export default withAuth(
              path.startsWith("/api/auth") || 
              path.startsWith("/api/analizar_g") ||
              path === "/Inicio" || 
-             path === "/Info" || 
+             path === "/Informacion" || 
              path === "/Registro" || 
              path === "/"      
         ) {

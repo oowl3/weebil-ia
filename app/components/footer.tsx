@@ -31,7 +31,7 @@ export default function Footer() {
             
             <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
               <FooterLink href="/sepalabola">Preguntas Frecuentes</FooterLink>
-              <FooterLink href="/Info">Privacidad y Condiciones</FooterLink>
+              <FooterLink href="/Informacion">Privacidad y Condiciones</FooterLink>
             </ul>
           </div>
 

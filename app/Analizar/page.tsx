@@ -250,4 +250,4 @@ export default function ScannerPage() {
         )}
     </main>
   );
-}
+} 

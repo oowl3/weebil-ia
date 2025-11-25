@@ -31,7 +31,7 @@ export default function Footer() {
             
             <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
               <FooterLink href="/sepalabola">Preguntas Frecuentes</FooterLink>
-              <FooterLink href="/info">Privacidad y Condiciones</FooterLink>
+              <FooterLink href="/Info">Privacidad y Condiciones</FooterLink>
             </ul>
           </div>
 
@@ -39,7 +39,7 @@ export default function Footer() {
           <div className="flex flex-col space-y-4">
             <h3 className="text-sm font-bold text-stone-900 uppercase tracking-wider">Contacto</h3>
             <p className="text-stone-600 text-sm">
-              ¿Tienes dudas o encontraste un bug malo?
+              ¿Tienes dudas o encontraste un bug?
             </p>
             <div className="flex items-center gap-3 p-3  w-fit">
                <Mail size={18} className="text-rose-500" />
@@ -56,7 +56,7 @@ export default function Footer() {
       <div className="border-t border-stone-200/60 bg-[#F5EBE5]">
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-stone-500 font-medium">
-            © {currentYear} Weebil. By:Ranita-Pandax-Alondra-Bichin-Morenaso
+            © {currentYear} Weebil. By:Ranita-Pandax-Alondra-Bichin-Morenazo
           </p>
           <p className="text-xs text-stone-400 flex items-center gap-1">
              Hecho con <span className="text-rose-500">♥</span> en La Laguna, MX

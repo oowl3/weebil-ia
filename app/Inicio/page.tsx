@@ -122,7 +122,7 @@ const Loguin = () => {
             {/* boton continuar sin cuenta */}
             <div className="mt-12 flex justify-center px-4">
               <div className="w-full max-w-xs rounded-xl bg-(--intense-pink) py-4 px-1 shadow-lg">
-                <Link href="/Registro" className="block">
+                <Link href="/Analizar" className="block">
                   <span className="text-[25px] font-semi-bold py-4 px-8 rounded-xl bg-white text-center block text-lg">
                     Continuar sin cuenta
                   </span>

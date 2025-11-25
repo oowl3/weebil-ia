@@ -51,10 +51,28 @@ export default function ScannerPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // --- 🛡️ VALIDACIÓN FRONTEND (FAIL FAST) ---
     setErrorMsg(null);
     setResult(null);
+
+    // 1. Validación de Tipo (Debe coincidir con el backend)
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+    if (!validTypes.includes(file.type)) {
+        setErrorMsg("Formato no válido. Por favor usa JPG, PNG o WEBP.");
+        return; // Detenemos ejecución aquí
+    }
+
+    // 2. Validación de Tamaño (4.5MB Límite estricto)
+    // 4.5 * 1024 * 1024 = 4,718,592 bytes
+    if (file.size > 4.5 * 1024 * 1024) {
+        setErrorMsg("La imagen es muy pesada (Máx 4.5MB). Intenta recortarla un poco.");
+        return; // Detenemos ejecución aquí
+    }
+    // ---------------------------------------------
+
     setLoading(true);
 
+    // Preview de imagen
     const reader = new FileReader();
     reader.onloadend = () => setImage(reader.result as string);
     reader.readAsDataURL(file);
@@ -72,20 +90,23 @@ export default function ScannerPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || `Error: ${response.status}`);
+        // Ahora capturamos el mensaje específico que envía tu nuevo backend (413 o 415)
+        throw new Error(data.error || `Error del servidor: ${response.status}`);
       }
 
       setResult(data as AnalysisResult);
+
     } catch (error: any) {
       console.error("Error:", error);
-      setErrorMsg(error.message || "Error de conexión al analizar la imagen.");
+      setErrorMsg(error.message || "Ocurrió un problema al conectar con el cerebro de IA.");
+      // Si falla, quitamos la preview para no confundir
+      setImage(null); 
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    // CAMBIO 1: Agregamos 'flex flex-col' al main para controlar la altura vertical
     <main className="min-h-dvh w-full max-w-md mx-auto relative bg-gray-50/50 flex flex-col">
         <Header_a/>
         
@@ -93,8 +114,6 @@ export default function ScannerPage() {
           Detector De Animales
         </h1>
         
-        {/* CAMBIO 2: Agregamos 'flex-1' aquí. Esto hace que este div crezca 
-            y ocupe todo el espacio vacío, empujando lo que siga (el registro) hasta el fondo */}
         <div className="px-5 pt-6 flex flex-col gap-5 flex-1">
 
              {/* --- INPUT CÁMARA --- */}
@@ -104,11 +123,12 @@ export default function ScannerPage() {
                      flex flex-col items-center justify-center gap-3 cursor-pointer
                      transition-all duration-300 overflow-hidden shadow-xl shadow-rose-100 hover:shadow-2xl hover:shadow-rose-200
                      ${loading 
-                       ? 'bg-gray-50 border-gray-200' 
+                       ? 'bg-gray-50 border-gray-200 cursor-wait' 
                        : 'bg-white border-rose-400/30 hover:border-rose-500'
                      }
+                     ${errorMsg ? 'border-red-300 bg-red-50' : ''}
                  `}>
-                     {image && !result ? (
+                     {image && !result && !errorMsg ? (
                          <>
                              <img src={image} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-50 blur-sm" />
                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 backdrop-blur-sm z-10">
@@ -127,7 +147,7 @@ export default function ScannerPage() {
 
                      <input
                          type="file"
-                         accept="image/*"
+                         accept="image/jpeg, image/png, image/webp" // Sugerencia para el OS móvil
                          capture="environment"
                          onChange={handleImageUpload}
                          className="hidden"
@@ -145,8 +165,8 @@ export default function ScannerPage() {
                          transform transition-all duration-200
                          active:scale-[0.98]
                          ${loading
-                             ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                             : 'text-black'
+                           ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                           : 'text-black'
                          }
                      `}
                      style={!loading ? { backgroundColor: 'var(--intense-pink-cl)' } : {}}
@@ -154,42 +174,48 @@ export default function ScannerPage() {
                      <ImagePlus size={26} className="text-(--intense-pink)" strokeWidth={2} />
                      <span className="text-base font-bold tracking-wide">Subir desde Galería</span>
 
-                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={loading}/>
+                     <input 
+                        type="file" 
+                        accept="image/jpeg, image/png, image/webp" 
+                        onChange={handleImageUpload} 
+                        className="hidden" 
+                        disabled={loading}
+                    />
                  </label>
              </div>
 
-             {/* --- WARNING CARD --- */}
-             <div className="rounded-xl border border-amber-200/60 bg-linear-to-br from-amber-50 to-orange-50 p-5 relative overflow-hidden">
-                 <div className="absolute -right-2 -bottom-4 text-amber-500/10 rotate-12">
-                     <AlertTriangle size={80} />
-                 </div>
-                 <h2 className=" font-bold text-amber-900 mb-1 flex items-center gap-2">
-                     <AlertTriangle size={16} className="text-amber-600"/>
-                     Precaución
-                 </h2>
-                 <p className="text-amber-900 text-sm leading-relaxed max-w-[90%]">
-                     Mantén una distancia segura de al menos 1 metro. Tu seguridad es primero.
-                 </p>
-             </div>
-             
-             {/* --- ERROR MESSAGE (Lo dejé aquí para que salga cerca de los inputs) --- */}
-            {errorMsg && (
-                <div className="p-4 bg-red-50 text-red-800 rounded-xl border border-red-100 flex items-center gap-3 animate-in slide-in-from-bottom-2 shadow-sm">
-                    <AlertTriangle size={20} className="shrink-0 text-red-500" />
-                    <p className="text-sm font-medium">{errorMsg}</p>
+             {/* --- ERROR MESSAGE --- */}
+             {errorMsg && (
+                <div className="p-4 bg-red-50 text-red-800 rounded-xl border border-red-200 flex items-start gap-3 animate-in slide-in-from-bottom-2 shadow-sm">
+                    <AlertTriangle size={20} className="shrink-0 text-red-500 mt-0.5" />
+                    <div className="flex flex-col">
+                        <p className="text-sm font-bold text-red-900">No se pudo procesar</p>
+                        <p className="text-sm">{errorMsg}</p>
+                    </div>
                 </div>
-            )}
+             )}
+
+             {/* --- WARNING CARD --- */}
+             {!errorMsg && (
+                 <div className="rounded-xl border border-amber-200/60 bg-linear-to-br from-amber-50 to-orange-50 p-5 relative overflow-hidden">
+                     <div className="absolute -right-2 -bottom-4 text-amber-500/10 rotate-12">
+                         <AlertTriangle size={80} />
+                     </div>
+                     <h2 className=" font-bold text-amber-900 mb-1 flex items-center gap-2">
+                         <AlertTriangle size={16} className="text-amber-600"/>
+                         Precaución
+                     </h2>
+                     <p className="text-amber-900 text-sm leading-relaxed max-w-[90%]">
+                         Mantén una distancia segura de al menos 1 metro. Tu seguridad es primero.
+                     </p>
+                 </div>
+             )}
 
         </div> 
-        {/* FIN DEL DIV CENTRAL (inputs) */}
 
-
-        {/* CAMBIO 3: MOVIMOS EL FOOTER FUERA DEL DIV DE INPUTS Y AL FINAL DEL MAIN */}
+        {/* --- FOOTER --- */}
         <div className="px-5 pb-8 pt-4 mt-auto">
-            {/* CORRECCIÓN: Usamos bg-[#D92B4B] directamente en className para asegurar el color */}
-            <div className="relative overflow-hidden  pt-6 text-white shadow-xl bg-[#D92B4B]">
-                
-                {/* Decoración de fondo (Opcional, para darle profundidad) */}
+            <div className="relative overflow-hidden rounded-2xl pt-6 px-4 pb-6 text-white shadow-xl bg-[#D92B4B]">
                 <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-3xl pointer-events-none pt-1" />
 
                 <div className="relative z-10 flex flex-col gap-3">
@@ -208,7 +234,6 @@ export default function ScannerPage() {
 
                     <Link 
                         href="/Registro"
-                        /* Agregamos 'block' y aseguramos la estructura flex */
                         className="mt-2 w-full block group relative h-10"
                     >
                         <div className="flex h-8 items-center justify-center gap-2 rounded-xl bg-white py-3 text-sm font-bold text-[#1e293b] transition-all hover:bg-gray-100 active:scale-95 shadow-sm">

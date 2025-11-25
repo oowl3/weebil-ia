@@ -175,8 +175,6 @@ model Faq {
   id        Int      @id @default(autoincrement())
   pregunta  String
   respuesta String   @db.Text
-  orden     Int?     @default(0)
   creadoEn  DateTime @default(now())
-
   @@map("faqs")
 }

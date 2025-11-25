@@ -56,7 +56,7 @@ export default function Footer() {
       <div className="border-t border-stone-200/60 bg-[#F5EBE5]">
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-stone-500 font-medium">
-            © {currentYear} Weebil. By:Ranita-Pandax-Alondra-Bichin-Morenazo
+            © {currentYear} Weebil. By:Ranita-Pandax-Londrix-Bichin-Morenazo
           </p>
           <p className="text-xs text-stone-400 flex items-center gap-1">
              Hecho con <span className="text-rose-500">♥</span> en La Laguna, MX

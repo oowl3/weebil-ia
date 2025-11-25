@@ -1,11 +1,12 @@
+datasource db {
+  provider = "postgresql"
+  // Reintroduce esta línea para satisfacer al validador de Vercel
+  url      = env("DATABASE_URL")
+}
+
 generator client {
   provider = "prisma-client-js"
 }
-
-datasource db {
-  provider = "postgresql"
-}
-
 // ==========================================
 // 1. MÓDULO DE AUTENTICACIÓN (ESTÁNDAR NEXT-AUTH)
 // ==========================================

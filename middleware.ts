@@ -19,13 +19,14 @@ export default withAuth(
         if (
              path.startsWith("/api/auth") || 
              path.startsWith("/api/analizar_g") ||
+             path.startsWith("/api/analizar_u") ||
              path.startsWith("/api/faq") ||
              path === "/Faq" ||
              path === "/Inicio" || 
              path === "/Informacion" || 
              path === "/Registro" || 
              path === "/" ||
-             path.startsWith("/api/ia/chat")  
+             path.startsWith("/api/ia/chat")
         ) {
           return true;
         }

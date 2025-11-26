@@ -905,9 +905,79 @@ console.log('✅ Inventario de antídotos insertado correctamente en todos los h
     },
   });
 
+// ============================================================
+  // 9. FAQs (PREGUNTAS FRECUENTES)
+  // ============================================================
+  console.log('❓ Insertando FAQs...');
+  
+  const faqsData = [
+    {
+      pregunta: "¿Qué tipo de animales puedo identificar con WEEBIL?",
+      respuesta: "WEEBIL está diseñado para identificar arácnidos peligrosos (alacranes, arañas), insectos de importancia médica (como abejas, avispas, garrapatas) y otros animales venenosos como serpientes, priorizando la evaluación de riesgo."
+    },
+    {
+      pregunta: "¿Necesito crear una cuenta para usar la aplicación?",
+      respuesta: "No, puedes acceder y usar la funcionalidad de detección y localización de tratamiento sin crear una cuenta."
+    },
+    {
+      pregunta: "¿Qué beneficios obtengo al crear una cuenta (Google/Correo)?",
+      respuesta: "Al crear una cuenta, la aplicación guardará tu historial de detecciones y consultas para que puedas revisarlas posteriormente."
+    },
+    {
+      pregunta: "¿Cómo subo una foto para la detección por IA?",
+      respuesta: "Solo tienes que tomar una foto clara del animal o de la lesión/picadura directamente desde la aplicación o subir una imagen de tu galería para que la IA la analice."
+    },
+    {
+      pregunta: "¿Qué información obtengo después de que la IA detecta un animal?",
+      respuesta: "Recibirás una advertencia de peligro, el nombre científico del animal, recomendaciones médicas de primeros auxilios, información general del animal, y el porcentaje de confiabilidad de la detección por IA."
+    },
+    {
+      pregunta: "¿Qué tan precisa es la detección de la IA?",
+      respuesta: "La precisión depende de la calidad de la imagen que proporciones (enfoque, iluminación). La aplicación te mostrará un porcentaje de confiabilidad de la detección."
+    },
+    {
+      pregunta: "¿Puedo subir una foto de la picadura/lesión en lugar del animal?",
+      respuesta: "Sí, la IA está diseñada para la clasificación precisa de la especie arácnida y la evaluación del nivel de riesgo de la lesión a partir de imágenes."
+    },
+    {
+      pregunta: "Si WEEBIL me indica que un animal es peligroso, ¿debo ir inmediatamente al hospital?",
+      respuesta: "Sí, la aplicación proporciona una evaluación preliminar del riesgo. Si el resultado indica peligro, debes seguir las recomendaciones de primeros auxilios y buscar asistencia médica inmediata."
+    },
+    {
+      pregunta: "¿WEEBIL reemplaza el diagnóstico de un médico?",
+      respuesta: "No. WEEBIL es una herramienta de apoyo para la clasificación de riesgo, no un diagnóstico clínico oficial. El veredicto y tratamiento final son responsabilidad del personal médico."
+    },
+    {
+      pregunta: "¿Cómo me ayuda WEEBIL en una emergencia?",
+      respuesta: "WEEBIL proporciona una evaluación preliminar del riesgo y facilita la localización inmediata de centros de salud que tienen el antiveneno específico disponible, optimizando el traslado del paciente."
+    },
+    {
+      pregunta: "¿Qué son las 'recomendaciones médicas' que proporciona WEEBIL?",
+      respuesta: "Son protocolos de primeros auxilios validados que debes seguir mientras buscas atención médica especializada."
+    },
+    {
+      pregunta: "¿Qué es el 'Bestiario' interactivo?",
+      respuesta: "Es un Bestiario regional con datos validados e información sobre especies peligrosas de Durango. Las especies se 'descubren' al ser fotografiadas y validadas por la IA."
+    },
+    {
+      pregunta: "¿La localización de hospitales abarca todo México?",
+      respuesta: "No. La información de geolocalización de antídoto y el Bestiario se limitarán al estado de Durango, México."
+    },
+    {
+      pregunta: "¿Por qué es tan importante la localización del antiveneno?",
+      respuesta: "La aplicación busca reducir los tiempos de respuesta y optimizar la referencia de pacientes a hospitales con disponibilidad del antídoto, ya que la falta de conocimiento y la pérdida de tiempo resultan en un retraso vital en la administración del tratamiento específico."
+    },
+    {
+      pregunta: "¿El riesgo por picaduras es realmente un problema de salud pública en Durango?",
+      respuesta: "Sí. Durango enfrenta un desafío de salud pública por la alta prevalencia de fauna arácnida de importancia médica, y se mantiene consistentemente entre los estados con mayor número de picaduras de alacrán. En 2023, se registraron más de 13,000 casos de intoxicación por picadura de alacrán en el estado."
+    }
+  ];
 
+  await prisma.faq.createMany({
+    data: faqsData,
+  });
 
-  console.log(`✅ Seed completado exitosamente. ${hospitalesData.length} hospitales creados.`);
+  console.log(`✅ Master Seed completado exitosamente.`);
 }
 
 main()

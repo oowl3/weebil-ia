@@ -10,13 +10,13 @@ export default function TikTokSignInButton() {
   const loginWithTikTok = async () => {
     try {
       setIsLoading(true);
-      // OJO: Cambiamos "google" por "tiktok"
-      await signIn("tiktok", { callbackUrl: "/analizar" }); 
+      // "tiktok" coincide con el id de tu provider personalizado
+      await signIn("tiktok", { callbackUrl: "/Home" }); 
     } catch (error) {
+      // Nota: Si signIn redirecciona, este catch raramente se ejecuta 
+      // a menos que falle la configuración inicial.
       console.error("Error en login con TikTok:", error);
-    } finally {
-      // No reseteamos isLoading a false inmediatamente si redirige,
-      // para evitar que el usuario haga clic de nuevo.
+      setIsLoading(false); 
     }
   };
 
@@ -26,9 +26,9 @@ export default function TikTokSignInButton() {
       disabled={isLoading}
       className={`
         flex w-full items-center justify-center gap-3 px-6 py-3 
-        bg-black text-white  /* TikTok usa fondo negro y texto blanco */
+        bg-black text-white 
         border border-transparent rounded-lg shadow-sm 
-        hover:bg-gray-800 hover:shadow-md transition-all duration-200
+        hover:bg-gray-900 hover:shadow-md transition-all duration-200
         font-medium text-sm sm:text-base
         disabled:opacity-70 disabled:cursor-not-allowed
       `}
@@ -36,7 +36,7 @@ export default function TikTokSignInButton() {
       {isLoading ? (
         <Loader2 className="w-5 h-5 animate-spin text-white" />
       ) : (
-        // Icono SVG de TikTok (Blanco)
+        /* SVG optimizado visualmente */
         <svg 
           className="w-5 h-5 fill-current" 
           viewBox="0 0 448 512"

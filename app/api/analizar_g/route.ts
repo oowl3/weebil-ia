@@ -7,11 +7,11 @@ import {
   Schema 
 } from "@google/generative-ai";
 import { crearAnimalYDesbloquear, mapearPeligrosidad, inferirCategoria } from '@/lib/animalManager';
-import { buscarAnimalesPorNombre } from '@/lib/databaseSearch';
+import { buscarAnimalesPorNombre, buscarAntidotosPorAnimal, buscarHospitalesConAntidoto } from '@/lib/databaseSearch';
+import { guardarConversacionIA } from '@/lib/iaStorage';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.API_KEY!);
 
-// Schema expandido para mejor detección
 const schema: Schema = {
   description: "Análisis de fauna con información completa para registro",
   type: SchemaType.OBJECT,
@@ -29,7 +29,7 @@ const schema: Schema = {
   required: ["identificado", "nombre_comun", "nombre_cientifico", "nivel_peligrosidad", "descripcion_pokedex", "habitat", "primeros_auxilios", "nivel_confianza", "tipo_animal"],
 };
 
-// 🔥 NUEVA FUNCIÓN: Manejar usuarios de debug
+// 🔥 FUNCIÓN COMPLETA: Manejar usuarios guest
 async function obtenerOcrearUsuarioDebug(usuarioId: string) {
   const { prisma } = await import('@/lib/prisma');
   
@@ -39,10 +39,10 @@ async function obtenerOcrearUsuarioDebug(usuarioId: string) {
       // Verificar si ya existe
       const usuarioExistente = await prisma.user.findUnique({
         where: { id: usuarioId }
-      })
+      });
 
       if (usuarioExistente) {
-        return usuarioExistente
+        return usuarioExistente;
       }
 
       // Crear usuario invitado
@@ -52,20 +52,75 @@ async function obtenerOcrearUsuarioDebug(usuarioId: string) {
           name: 'Usuario Invitado',
           email: `${usuarioId}@guest.com`
         }
-      })
+      });
 
-      console.log('👤 Usuario guest creado:', usuarioGuest.id)
-      return usuarioGuest
+      console.log('👤 Usuario guest creado:', usuarioGuest.id);
+      return usuarioGuest;
 
     } catch (error) {
-      console.error('❌ Error creando usuario guest:', error)
-      return null
+      console.error('❌ Error creando usuario guest:', error);
+      return null;
     }
   }
   
-  return null
+  return null;
 }
 
+// 🔥 FUNCIÓN COMPLETA: Desbloquear animal para usuario
+async function desbloquearAnimalParaUsuario(animalId: number, usuarioId: string) {
+  const { prisma } = await import('@/lib/prisma');
+  
+  try {
+    await prisma.animalDesbloqueado.create({
+      data: {
+        animalId,
+        usuarioId
+      }
+    });
+    console.log('🔓 Animal desbloqueado para usuario:', { animalId, usuarioId });
+  } catch (error: any) {
+    // Ignorar error si ya está desbloqueado (violación de clave única)
+    if (error.code !== 'P2002') {
+      console.error('Error desbloqueando animal:', error);
+    }
+  }
+}
+
+// 🔥 FUNCIÓN COMPLETA: Obtener información de antídotos y hospitales
+async function obtenerInfoAntidotosYHospitales(animalId: number) {
+  try {
+    const antidotos = await buscarAntidotosPorAnimal(animalId);
+    
+    const infoAntidotos = await Promise.all(
+      antidotos.map(async (relacion) => {
+        const antidoto = relacion.antidoto;
+        const hospitales = await buscarHospitalesConAntidoto(antidoto.id);
+        
+        return {
+          id: antidoto.id,
+          nombre: antidoto.nombre,
+          descripcion: antidoto.descripcion,
+          hospitales: hospitales.map(ha => ({
+            id: ha.hospital.id,
+            nombre: ha.hospital.nombre,
+            direccion: ha.hospital.direccion,
+            telefono: ha.hospital.telefono || 'No disponible',
+            latitud: ha.hospital.latitud,
+            longitud: ha.hospital.longitud,
+            stock: ha.stock
+          }))
+        };
+      })
+    );
+    
+    return infoAntidotos;
+  } catch (error) {
+    console.error('❌ Error obteniendo información de antídotos:', error);
+    return [];
+  }
+}
+
+// 🔥 ENDPOINT PRINCIPAL COMPLETO
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -138,15 +193,16 @@ export async function POST(req: NextRequest) {
       tipo: data.tipo_animal
     });
 
-    // 🔥 NUEVO: AUTO-REGISTRO EN BASE DE DATOS
+    // 🔥 AUTO-REGISTRO EN BASE DE DATOS
     let animalRegistrado = null;
     let usuarioValido = usuarioId;
+    let infoAntidotosYHospitales = [];
     
-    // Manejar usuarios de debug
-    if (usuarioId && usuarioId.startsWith('debug-user-')) {
+    // Manejar usuarios de debug/guest
+    if (usuarioId && usuarioId.startsWith('guest-')) {
       const usuarioDebug = await obtenerOcrearUsuarioDebug(usuarioId);
       if (!usuarioDebug) {
-        console.log('⚠️ No se pudo crear usuario debug, continuando sin desbloqueo');
+        console.log('⚠️ No se pudo crear usuario guest, continuando sin desbloqueo');
         usuarioValido = undefined;
       }
     }
@@ -172,6 +228,11 @@ export async function POST(req: NextRequest) {
           });
 
           console.log('✅ Nuevo animal registrado:', animalRegistrado.nombreComun);
+          
+          // 🔥 Obtener información de antídotos después de registrar
+          if (animalRegistrado) {
+            infoAntidotosYHospitales = await obtenerInfoAntidotosYHospitales(animalRegistrado.id);
+          }
         } catch (error) {
           console.error('❌ Error registrando animal:', error);
           // Continuar sin registro pero devolver respuesta de IA
@@ -179,12 +240,13 @@ export async function POST(req: NextRequest) {
       } else {
         // 3. Ya existe → Desbloquear para usuario si aplica
         animalRegistrado = animalesExistentes[0];
+        
+        // 🔥 Obtener información de antídotos para animal existente
+        infoAntidotosYHospitales = await obtenerInfoAntidotosYHospitales(animalRegistrado.id);
+        
         if (usuarioValido) {
           try {
-            await crearAnimalYDesbloquear({
-              ...animalRegistrado,
-              usuarioId: usuarioValido
-            });
+            await desbloquearAnimalParaUsuario(animalRegistrado.id, usuarioValido);
             console.log('🔓 Animal existente desbloqueado:', animalRegistrado.nombreComun);
           } catch (error) {
             console.log('⚠️ Animal ya estaba desbloqueado o error en desbloqueo');
@@ -194,7 +256,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Guardar en historial de conversaciones
+    // 🔥 Guardar en historial de conversaciones
     try {
       await guardarConversacionIA({
         mensajeUsuario: `Análisis de imagen: ${file.name}`,
@@ -209,13 +271,14 @@ export async function POST(req: NextRequest) {
       console.error('❌ Error guardando conversación:', error);
     }
 
-    // Respuesta enriquecida con info de registro
+    // 🔥 Respuesta enriquecida con info de registro, antídotos y hospitales
     return NextResponse.json({
       ...data,
       metadata: {
         registradoEnBD: !!animalRegistrado,
         animalId: animalRegistrado?.id,
-        desbloqueado: !!usuarioValido
+        desbloqueado: !!usuarioValido,
+        antidotos: infoAntidotosYHospitales
       }
     });
 

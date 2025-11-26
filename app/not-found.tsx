@@ -15,7 +15,7 @@ export default function NotFound() {
           #404
         </h2>
         <h2 className="text-2xl font-bold text-desert-night">
-          Te has perdido en el desierto
+          Te has perdido en el desierto.
         </h2>
 
         <p className="mt-3 text-base text-desert-night/70">

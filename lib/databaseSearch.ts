@@ -1,9 +1,7 @@
-// lib/databaseSearch.ts
+// lib/databaseSearch.ts - VERSIÓN MEJORADA
 import { prisma } from '@/lib/prisma'
 
-// lib/databaseSearch.ts - Versión mejorada
 export async function buscarAnimalesPorNombre(nombre: string) {
-  // Primero intentar coincidencia exacta
   let animales = await prisma.animal.findMany({
     where: {
       OR: [
@@ -14,13 +12,20 @@ export async function buscarAnimalesPorNombre(nombre: string) {
     include: {
       animalAntidoto: {
         include: {
-          antidoto: true
+          antidoto: {
+            include: {
+              hospitalAntidoto: {
+                include: {
+                  hospital: true
+                }
+              }
+            }
+          }
         }
       }
     }
   })
 
-  // Si no hay coincidencia exacta, buscar parcial
   if (animales.length === 0) {
     animales = await prisma.animal.findMany({
       where: {
@@ -32,7 +37,15 @@ export async function buscarAnimalesPorNombre(nombre: string) {
       include: {
         animalAntidoto: {
           include: {
-            antidoto: true
+            antidoto: {
+              include: {
+                hospitalAntidoto: {
+                  include: {
+                    hospital: true
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -42,6 +55,7 @@ export async function buscarAnimalesPorNombre(nombre: string) {
   return animales
 }
 
+// 🔥 NUEVA FUNCIÓN: Buscar antídotos por animal
 export async function buscarAntidotosPorAnimal(animalId: number) {
   return await prisma.animalAntidoto.findMany({
     where: { animalId },
@@ -59,8 +73,49 @@ export async function buscarAntidotosPorAnimal(animalId: number) {
   })
 }
 
+// 🔥 NUEVA FUNCIÓN: Buscar hospitales con un antídoto específico
+export async function buscarHospitalesConAntidoto(antidotoId: number) {
+  return await prisma.hospitalAntidoto.findMany({
+    where: { antidotoId },
+    include: {
+      hospital: true,
+      antidoto: true
+    },
+    orderBy: {
+      stock: 'desc' // Ordenar por stock disponible
+    }
+  })
+}
+
+// 🔥 NUEVA FUNCIÓN: Buscar antídoto por nombre
+export async function buscarAntidotoPorNombre(nombre: string) {
+  return await prisma.antidoto.findFirst({
+    where: {
+      nombre: { contains: nombre, mode: 'insensitive' }
+    }
+  })
+}
+
+// 🔥 NUEVA FUNCIÓN: Crear relación animal-antídoto
+export async function crearRelacionAnimalAntidoto(animalId: number, antidotoId: number) {
+  try {
+    await prisma.animalAntidoto.create({
+      data: {
+        animalId,
+        antidotoId
+      }
+    })
+    console.log('✅ Relación animal-antídoto creada:', { animalId, antidotoId })
+  } catch (error) {
+    if (error.code === 'P2002') {
+      console.log('⚠️ Relación animal-antídoto ya existe')
+    } else {
+      throw error
+    }
+  }
+}
+
 export async function buscarHospitalesCercanos(latitud: number, longitud: number, radioKm: number = 50) {
-  // Fórmula haversine aproximada para distancia
   return await prisma.$queryRaw`
     SELECT 
       id, nombre, direccion, telefono, latitud, longitud,

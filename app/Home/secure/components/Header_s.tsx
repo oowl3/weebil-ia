@@ -1,10 +1,10 @@
 import React from "react";
-import Logo from "./logo";
+import Logo from "@/app/components/logo";
 import Link from "next/link";
 
-export default function Header_a() {
+export default function Header_s() {
   return (
-    <Link href="/Inicio" className="block w-full group">
+    <Link href="/Home" className="block w-full group">
       <header
         className="w-full bg-white shadow-sm rounded-b-[120px] border-t-4 border-black flex items-center justify-center py-20 
         transition-transform duration-300 ease-out group-hover:scale-[1.02] group-active:scale-95 cursor-pointer"

@@ -14,18 +14,49 @@ async function main() {
   await prisma.animal.deleteMany();
   await prisma.user.deleteMany();
 
-  // 2. CREACIÓN DE ANTÍDOTOS
-  const sueroPolivalente = await prisma.antidoto.create({
+  // ============================================================
+  // CREACIÓN DE ANTÍDOTOS ESPECÍFICOS
+  // ============================================================
+
+  const antialacran = await prisma.antidoto.create({
     data: {
-      nombre: 'Suero Anti-arácnido Polivalente',
-      descripcion: 'Neutraliza veneno de Latrodectus (Viuda negra) y Loxosceles (Violinista).',
+      nombre: 'Antiveneno Antialacrán',
+      descripcion: 'Faboterápico polivalente para escorpiones del género Centruroides.',
     },
   });
 
-  const analgesicoFuerte = await prisma.antidoto.create({
+  const antiviperino = await prisma.antidoto.create({
+    data: {
+      nombre: 'Antiveneno Antiviperino',
+      descripcion: 'Faboterápico polivalente para serpientes del género Crotalus.',
+    },
+  });
+
+  const anticoralillo = await prisma.antidoto.create({
+    data: {
+      nombre: 'Antiveneno Coralillo',
+      descripcion: 'Suero específico para envenenamiento por Micrurus (coralillo).',
+    },
+  });
+
+  const antilatrodectus = await prisma.antidoto.create({
+    data: {
+      nombre: 'Antiveneno Anti-Latrodectus',
+      descripcion: 'Antídoto para mordeduras de arañas del género Latrodectus (viudas).',
+    },
+  });
+
+  const antiloxosceles = await prisma.antidoto.create({
+    data: {
+      nombre: 'Antiveneno Anti-Loxosceles',
+      descripcion: 'Antídoto utilizado en casos graves por Loxosceles (araña violinista).',
+    },
+  });
+
+  const analgesico = await prisma.antidoto.create({
     data: {
       nombre: 'Analgésico Sistémico',
-      descripcion: 'Tratamiento sintomático para picaduras no letales pero dolorosas.',
+      descripcion: 'Tratamiento sintomático para dolor local por picadura o mordedura sin antiveneno específico.',
     },
   });
 
@@ -297,14 +328,76 @@ async function main() {
     },
   });
 
+  // ============================================================
+// TABLA PIVOTE: ASOCIAR ANTÍDOTOS A LOS ANIMALES EXISTENTES
+// ============================================================
 
-  // 4. RELACIONAR ANIMALES CON ANTÍDOTOS
-  await prisma.animalAntidoto.createMany({
-    data: [
-      { animalId: alacranDurango.id, antidotoId: sueroPolivalente.id },
-      { animalId: avispaPolistes.id, antidotoId: sueroPolivalente.id },
-    ],
+// === 1. Alacranes (Antiveneno Antialacrán → id = 1) ===
+const alacranIDs = [1, 2, 3, 4, 5];
+for (const id of alacranIDs) {
+  await prisma.animalAntidoto.create({
+    data: {
+      animalId: id,
+      antidotoId: 1, // Antialacrán
+    },
   });
+}
+
+// === 2. Cascabeles (Antiveneno Antiviperino → id = 2) ===
+const cascabelIDs = [6, 7, 8, 9, 10, 11, 12];
+for (const id of cascabelIDs) {
+  await prisma.animalAntidoto.create({
+    data: {
+      animalId: id,
+      antidotoId: 2, // Antiviperino
+    },
+  });
+}
+
+// === 3. Coralillo (Antiveneno Coralillo → id = 3) ===
+await prisma.animalAntidoto.create({
+  data: {
+    animalId: 14,
+    antidotoId: 3,
+  },
+});
+
+// === 4. Viudas negras / cafés (Anti-Latrodectus → id = 4) ===
+const latrodectusIDs = [18, 20];
+for (const id of latrodectusIDs) {
+  await prisma.animalAntidoto.create({
+    data: {
+      animalId: id,
+      antidotoId: 4, // Anti-Latrodectus
+    },
+  });
+}
+
+// === 5. Araña violinista (Anti-Loxosceles → id = 5) ===
+await prisma.animalAntidoto.create({
+  data: {
+    animalId: 19,
+    antidotoId: 5, // Anti-Loxosceles
+  },
+});
+
+// === 6. Animales sin antiveneno específico (Analgesia / Soporte) ===
+// Analgésico Sistémico → id = 6
+const soporteIDs = [
+  13, // Lagarto enchaquirado
+  15, // Abeja africanizada
+  16, // Avispa Polistes
+  17, // Ciempiés gigante
+];
+
+for (const id of soporteIDs) {
+  await prisma.animalAntidoto.create({
+    data: {
+      animalId: id,
+      antidotoId: 6, // Analgésico
+    },
+  });
+}
 
   // 5. CREACIÓN DE HOSPITALES - Array con todos los hospitales
 const hospitalesData = [
@@ -713,23 +806,88 @@ const hospitalesData = [
 ];
 
   // Insertar todos los hospitales
-  await prisma.hospital.createMany({
-    data: hospitalesData,
-  });
+  console.log("➡ Creando hospitales...");
 
-  // Obtener los IDs de los hospitales recién creados para el inventario
-  const hospitalesCreados = await prisma.hospital.findMany();
-  
-  // 6. INVENTARIO DE HOSPITALES
-  // Asignar antídotos a algunos hospitales (puedes ajustar esta lógica)
-  const inventarioData = hospitalesCreados.map((hospital, index) => [
-    { hospitalId: hospital.id, antidotoId: sueroPolivalente.id, stock: index % 3 === 0 ? 2 : 10 }, // Stock variable
-    { hospitalId: hospital.id, antidotoId: analgesicoFuerte.id, stock: 50 }, // Stock alto para analgésico
-  ]).flat();
+await prisma.hospital.createMany({
+  data: hospitalesData.map(h => ({
+    nombre: h.nombre,
+    direccion: h.direccion,
+    telefono: h.telefono,
+    latitud: h.latitud,
+    longitud: h.longitud,
+    ultimaVerificacion: h.ultimaVerificacion,
+  })),
+  skipDuplicates: true, // 👈 evita duplicados si se corre el seed otra vez
+});
 
-  await prisma.hospitalAntidoto.createMany({
-    data: inventarioData,
-  });
+
+// -----------------------------
+// Inserción hospitalAntidoto con stock (sin duplicados)
+// -----------------------------
+
+// Obtenemos todos los hospitales y todos los antídotos
+const hospitales = await prisma.hospital.findMany();
+const todosLosHospitalesIDs = hospitales.map(h => h.id);
+
+const antidotos = await prisma.antidoto.findMany();
+
+// Función para generar stock aleatorio
+const stockRange = {
+  antialacran: () => Math.floor(Math.random() * 21) + 10, // 10 a 30
+  antiveneno: () => Math.floor(Math.random() * 21) + 5,   // 5 a 25
+  antiofido: () => Math.floor(Math.random() * 16) + 5,    // 5 a 20
+};
+
+// Objeto con antídotos específicos
+const antidotoEspecial = {
+  alacran: antidotos.find(a => a.nombre.includes('Alacrán'))?.id,
+  coralillo: antidotos.find(a => a.nombre.includes('Coralillo'))?.id,
+  latrodectus: antidotos.find(a => a.nombre.includes('Latrodectus'))?.id,
+};
+
+// Guardamos los datos que vamos a insertar
+const inventarioData: { hospitalId: number; antidotoId: number; stock: number }[] = [];
+
+// 1️⃣ Todos los hospitales reciben antídoto antialacrán
+for (const hid of todosLosHospitalesIDs) {
+  if (antidotoEspecial.alacran) {
+    inventarioData.push({
+      hospitalId: hid,
+      antidotoId: antidotoEspecial.alacran,
+      stock: stockRange.antialacran(),
+    });
+  }
+}
+
+// 2️⃣ Antídotos especiales asignados a hospitales aleatorios
+for (const hid of todosLosHospitalesIDs) {
+  // Ejemplo: 50% de hospitales reciben Coralillo
+  if (antidotoEspecial.coralillo && Math.random() < 0.5) {
+    inventarioData.push({
+      hospitalId: hid,
+      antidotoId: antidotoEspecial.coralillo,
+      stock: stockRange.antiveneno(),
+    });
+  }
+
+  // Ejemplo: 40% de hospitales reciben Latrodectus
+  if (antidotoEspecial.latrodectus && Math.random() < 0.4) {
+    inventarioData.push({
+      hospitalId: hid,
+      antidotoId: antidotoEspecial.latrodectus,
+      stock: stockRange.antiofido(),
+    });
+  }
+}
+
+// 3️⃣ Insertamos en la BD sin duplicados
+await prisma.hospitalAntidoto.createMany({
+  data: inventarioData,
+  skipDuplicates: true,
+});
+
+console.log('✅ Inventario de antídotos insertado correctamente en todos los hospitales');
+
 
   // 7. CREAR USUARIO DE PRUEBA
   const usuarioDemo = await prisma.user.create({

@@ -1,5 +1,6 @@
-// lib/animalManager.ts
+// lib/animalManager.ts - VERSIÓN MEJORADA
 import { prisma } from '@/lib/prisma'
+import { buscarAntidotoPorNombre, crearRelacionAnimalAntidoto } from './databaseSearch'
 
 interface NuevoAnimalData {
   nombreComun: string
@@ -10,6 +11,90 @@ interface NuevoAnimalData {
   peligrosidad: number
   categoria: number
   usuarioId?: string
+}
+
+// 🔥 NUEVA FUNCIÓN: Inferir antídoto basado en el tipo de animal
+export async function inferirYRegistrarAntidoto(animalData: {
+  nombreComun: string
+  nombreCientifico?: string
+  peligrosidad: number
+  categoria: number
+}): Promise<number | null> {
+  
+  // Solo buscar antídoto si el animal es peligroso (nivel 2 o 3)
+  if (animalData.peligrosidad < 2) {
+    console.log('🐛 Animal no peligroso, no se requiere antídoto específico')
+    return null
+  }
+
+  const nombreLower = animalData.nombreComun.toLowerCase()
+  const cientificoLower = animalData.nombreCientifico?.toLowerCase() || ''
+
+  let antidotoNombre = ''
+
+  // Inferir antídoto basado en el tipo de animal
+  if (nombreLower.includes('alacrán') || nombreLower.includes('escorpión') || 
+      cientificoLower.includes('centruroides')) {
+    antidotoNombre = 'Antiveneno Antialacrán'
+  } else if (nombreLower.includes('cascabel') || nombreLower.includes('víbora') || 
+             nombreLower.includes('serpiente') || cientificoLower.includes('crotalus')) {
+    antidotoNombre = 'Antiveneno Antiviperino'
+  } else if (nombreLower.includes('coralillo') || cientificoLower.includes('micrurus')) {
+    antidotoNombre = 'Antiveneno Coralillo'
+  } else if (nombreLower.includes('viuda negra') || nombreLower.includes('viuda café') || 
+             cientificoLower.includes('latrodectus')) {
+    antidotoNombre = 'Antiveneno Anti-Latrodectus'
+  } else if (nombreLower.includes('violinista') || cientificoLower.includes('loxosceles')) {
+    antidotoNombre = 'Antiveneno Anti-Loxosceles'
+  } else if (animalData.peligrosidad >= 2) {
+    // Para otros animales peligrosos sin antídoto específico
+    antidotoNombre = 'Analgésico Sistémico'
+  }
+
+  if (!antidotoNombre) {
+    console.log('❌ No se pudo inferir antídoto para:', animalData.nombreComun)
+    return null
+  }
+
+  try {
+    // Buscar si el antídoto ya existe
+    let antidoto = await buscarAntidotoPorNombre(antidotoNombre)
+    
+    if (!antidoto) {
+      // Crear nuevo antídoto si no existe
+      console.log('🆕 Creando nuevo antídoto:', antidotoNombre)
+      
+      const descripcion = generarDescripcionAntidoto(antidotoNombre)
+      
+      antidoto = await prisma.antidoto.create({
+        data: {
+          nombre: antidotoNombre,
+          descripcion: descripcion
+        }
+      })
+      
+      console.log('✅ Nuevo antídoto creado:', antidoto.id)
+    }
+
+    return antidoto.id
+
+  } catch (error) {
+    console.error('❌ Error registrando antídoto:', error)
+    return null
+  }
+}
+
+function generarDescripcionAntidoto(nombreAntidoto: string): string {
+  const descripciones: { [key: string]: string } = {
+    'Antiveneno Antialacrán': 'Faboterápico polivalente para escorpiones del género Centruroides.',
+    'Antiveneno Antiviperino': 'Faboterápico polivalente para serpientes del género Crotalus.',
+    'Antiveneno Coralillo': 'Suero específico para envenenamiento por Micrurus (coralillo).',
+    'Antiveneno Anti-Latrodectus': 'Antídoto para mordeduras de arañas del género Latrodectus (viudas).',
+    'Antiveneno Anti-Loxosceles': 'Antídoto utilizado en casos graves por Loxosceles (araña violinista).',
+    'Analgésico Sistémico': 'Tratamiento sintomático para dolor local por picadura o mordedura sin antiveneno específico.'
+  }
+
+  return descripciones[nombreAntidoto] || 'Antídoto para tratamiento de envenenamiento.'
 }
 
 export async function crearAnimalYDesbloquear(data: NuevoAnimalData) {
@@ -52,7 +137,27 @@ export async function crearAnimalYDesbloquear(data: NuevoAnimalData) {
 
     console.log('✅ Nuevo animal creado:', nuevoAnimal.id)
 
-    // 3. Si hay usuario, desbloquear automáticamente
+    // 🔥 NUEVO: 3. Inferir y registrar antídoto automáticamente
+    if (data.peligrosidad >= 2) { // Solo para animales peligrosos
+      try {
+        const antidotoId = await inferirYRegistrarAntidoto({
+          nombreComun: data.nombreComun,
+          nombreCientifico: data.nombreCientifico,
+          peligrosidad: data.peligrosidad,
+          categoria: data.categoria
+        })
+
+        if (antidotoId) {
+          await crearRelacionAnimalAntidoto(nuevoAnimal.id, antidotoId)
+          console.log('💊 Relación animal-antídoto establecida')
+        }
+      } catch (error) {
+        console.error('❌ Error en auto-registro de antídoto:', error)
+        // Continuar sin antídoto, no es crítico
+      }
+    }
+
+    // 4. Si hay usuario, desbloquear automáticamente
     if (data.usuarioId) {
       await desbloquearAnimalParaUsuario(nuevoAnimal.id, data.usuarioId)
     }
@@ -75,7 +180,6 @@ async function desbloquearAnimalParaUsuario(animalId: number, usuarioId: string)
     })
     console.log('🔓 Animal desbloqueado para usuario:', { animalId, usuarioId })
   } catch (error) {
-    // Ignorar error si ya está desbloqueado (violación de clave única)
     if (error.code !== 'P2002') {
       console.error('Error desbloqueando animal:', error)
     }

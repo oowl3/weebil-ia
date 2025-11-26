@@ -30,7 +30,7 @@ export default function Footer() {
             <h3 className="text-sm font-bold text-stone-900 uppercase tracking-wider">Explorar</h3>
             
             <ul className="grid grid-cols-2 gap-x-6 gap-y-3">
-              <FooterLink href="/sepalabola">Preguntas Frecuentes</FooterLink>
+              <FooterLink href="/Informacion">Preguntas Frecuentes</FooterLink>
               <FooterLink href="/Informacion">Privacidad y Condiciones</FooterLink>
             </ul>
           </div>

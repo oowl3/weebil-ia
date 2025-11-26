@@ -86,7 +86,6 @@ export async function POST(req: NextRequest) {
       prompt,
       {
         inlineData: {
-          // Importante: Usar el file.type validado, nunca un hardcode genérico si podemos evitarlo
           mimeType: file.type, 
           data: base64Image,
         },

@@ -19,6 +19,8 @@ export default withAuth(
         if (
              path.startsWith("/api/auth") || 
              path.startsWith("/api/analizar_g") ||
+             path.startsWith("/api/faq") ||
+             path === "/Faq" || 
              path === "/Inicio" || 
              path === "/Informacion" || 
              path === "/Registro" || 

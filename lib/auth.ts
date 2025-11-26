@@ -28,26 +28,34 @@ export const authOptions: NextAuthOptions = {
       },
     }),
 
-    // --- TIKTOK (Integración Manual con PKCE) ---
+// --- TIKTOK CORREGIDO ---
     {
       id: "tiktok",
       name: "TikTok",
       type: "oauth",
-      clientId: process.env.TIKTOK_CLIENT_KEY!,
+      clientId: process.env.TIKTOK_CLIENT_KEY!, 
       clientSecret: process.env.TIKTOK_CLIENT_SECRET!,
+      
       authorization: {
         url: "https://www.tiktok.com/v2/auth/authorize/",
         params: {
           scope: "user.info.basic",
           response_type: "code",
+          // --- EL CAMBIO CLAVE ---
+          // Forzamos el nombre del parámetro que TikTok exige.
+          client_key: process.env.TIKTOK_CLIENT_KEY, 
         },
       },
+      
       token: {
         url: "https://open.tiktokapis.com/v2/oauth/token/",
         params: {
           grant_type: "authorization_code",
+          // También aseguramos el key para el intercambio del token
+          client_key: process.env.TIKTOK_CLIENT_KEY, 
         },
       },
+      
       userinfo: "https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name",
       
       profile(profile) {
@@ -55,11 +63,10 @@ export const authOptions: NextAuthOptions = {
         return {
           id: userData.open_id || userData.union_id,
           name: userData.display_name || "TikTok User",
-          email: null, // Prisma aceptará esto si el campo email es opcional
+          email: null, 
           image: userData.avatar_url,
         };
       },
-      // Seguridad crítica para TikTok
       checks: ["state", "pkce"], 
     },
   ],

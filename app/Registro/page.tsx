@@ -2,7 +2,7 @@ import React from 'react'
 import Header_a from '../components/Header_a'
 import GoogleSignInButton from '../components/provedores/GoogleSignInButton'
 import TikTokSignInButton from '../components/provedores/TikTokSignInButton'
-//import SocialLoginButtons from '../components/provedores/SocialLoginButtons'
+
 const Registro = () => {
   return (
     <div>

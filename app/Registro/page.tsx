@@ -96,12 +96,20 @@ const Registro = () => {
         <div className="mt-8 px-8 text-center">
           <p className="text-sm text-gray-400">
             Al registrarte aceptas nuestros{' '}
-            <Link href="/Informacion" aria-label="Ver términos y condiciones" className="font-medium text--intense-pink underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-(--intense-pink)">
-              <p className=' inline text-(--intense-pink)'>términos </p>
-            </Link>
-            y
-            <Link href="/Informacion" aria-label="Ver términos y condiciones" className="font-medium text--intense-pink underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-(--intense-pink)">
-              <p className=' inline text-(--intense-pink)'> condiciones</p>
+            <Link
+              href="/Informacion"
+              aria-label="Ver términos y condiciones"
+              className="font-medium underline-offset-2 hover:underline focus:outline-none focus:ring-2"
+            >
+              <span className="text-(--intense-pink)">términos</span>
+            </Link>{' '}
+            y{' '}
+            <Link
+              href="/Informacion"
+              aria-label="Ver términos y condiciones"
+              className="font-medium underline-offset-2 hover:underline focus:outline-none focus:ring-2 "
+            >
+              <span className="text-(--intense-pink)">condiciones</span>
             </Link>
             .
           </p>

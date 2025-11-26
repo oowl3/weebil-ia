@@ -14,7 +14,7 @@ export default function SocialLoginButtons() {
     try {
       setLoadingProvider(provider);
       // La callbackUrl es la misma para ambos, redirige al escáner
-      await signIn(provider, { callbackUrl: "/analizar" }); 
+      await signIn(provider, { callbackUrl: "/Home" }); 
     } catch (error) {
       console.error(`Error en login con ${provider}:`, error);
       setLoadingProvider(null);

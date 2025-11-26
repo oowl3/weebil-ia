@@ -10,13 +10,11 @@ export default function TikTokSignInButton() {
   const loginWithTikTok = async () => {
     try {
       setIsLoading(true);
-      // OJO: Cambiamos "google" por "tiktok"
-      await signIn("tiktok", { callbackUrl: "/analizar" }); 
+      // Importante: callbackUrl redirige al usuario tras el login exitoso
+      await signIn("tiktok", { callbackUrl: "/Home" }); 
     } catch (error) {
       console.error("Error en login con TikTok:", error);
-    } finally {
-      // No reseteamos isLoading a false inmediatamente si redirige,
-      // para evitar que el usuario haga clic de nuevo.
+      setIsLoading(false); // Solo desactivamos si falla antes de redirigir
     }
   };
 
@@ -26,9 +24,9 @@ export default function TikTokSignInButton() {
       disabled={isLoading}
       className={`
         flex w-full items-center justify-center gap-3 px-6 py-3 
-        bg-black text-white  /* TikTok usa fondo negro y texto blanco */
+        bg-black text-white  /Home/
         border border-transparent rounded-lg shadow-sm 
-        hover:bg-gray-800 hover:shadow-md transition-all duration-200
+        hover:bg-gray-900 hover:shadow-md transition-all duration-200
         font-medium text-sm sm:text-base
         disabled:opacity-70 disabled:cursor-not-allowed
       `}

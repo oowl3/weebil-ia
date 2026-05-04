@@ -3,6 +3,7 @@
 npm run dev
 
 ```
+npm install next@latest react@latest react-dom@latest 
 
 Se abre en [http://localhost:3000](http://localhost:3000) 
 

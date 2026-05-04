@@ -167,7 +167,7 @@ export default function ResultModal({ result, onClose }: ResultModalProps) {
 
             {/* Primeros Auxilios (Se muestra si NO es BAJO) */}
             {dangerLevel !== "BAJO" && (
-                <div className="space-y-2 pt-2 animate-in slide-in-from-bottom-2">
+<div className="space-y-2 pt-2 animate-in slide-in-from-bottom-2">
                     {/* El título usa el color del tema */}
                     <div className={`flex items-center gap-2 ${theme.textColor} font-bold text-sm`}>
                         <Stethoscope size={18} />
@@ -175,9 +175,19 @@ export default function ResultModal({ result, onClose }: ResultModalProps) {
                     </div>
                     {/* La caja usa el color del tema (Rojo o Ámbar) */}
                     <div className={`${theme.lightBg} border ${theme.borderColor} p-4 rounded-lg`}>
-                        <p className={`text-sm ${theme.textColor} leading-relaxed`}>
-                            {result.primeros_auxilios}
-                        </p>
+                        {/* Cambiamos el <p> por un <ul> y le damos estilos de lista */}
+                        <ul className={`text-sm ${theme.textColor} leading-relaxed list-disc pl-5 space-y-2`}>
+                            {result.primeros_auxilios
+                                .split('.') // 1. Cortamos el texto en cada punto
+                                .filter(paso => paso.trim() !== '') // 2. Descartamos fragmentos vacíos
+                                .map((paso, index) => (
+                                    // 3. Renderizamos cada paso limpiando espacios extras y devolviendo el punto
+                                    <li key={index} className="pl-1">
+                                        {paso.trim()}.
+                                    </li>
+                                ))
+                            }
+                        </ul>
                     </div>
                 </div>
             )}

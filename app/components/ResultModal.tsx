@@ -187,9 +187,10 @@ export default function ResultModal({ result, onClose }: ResultModalProps) {
         {/* --- FOOTER --- */}
         <div className="p-4 border-t border-gray-100 bg-gray-50">
             
-            {/* CORRECCIÓN AQUÍ: Cambié 'h-1d' por 'h-1.5' (6px) y agregué margen inferior (mb-3) */}
             <div className={`w-full h-1  mb-4 ${theme.mainBg}`}/>
-            
+            <button>
+              <a href="/Ubicacion">Encontrar Hospital cercano</a>
+            </button>
             <button 
                 onClick={onClose}
                 className={`w-full h-12 py-3.5 rounded-lg shadow-sm transition-colors ${theme.mainBg} ${theme.buttonHover}`}

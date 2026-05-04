@@ -167,29 +167,31 @@ export default function ResultModal({ result, onClose }: ResultModalProps) {
 
             {/* Primeros Auxilios (Se muestra si NO es BAJO) */}
             {dangerLevel !== "BAJO" && (
-<div className="space-y-2 pt-2 animate-in slide-in-from-bottom-2">
-                    {/* El título usa el color del tema */}
-                    <div className={`flex items-center gap-2 ${theme.textColor} font-bold text-sm`}>
-                        <Stethoscope size={18} />
-                        <span>Protocolo de Emergencia</span>
-                    </div>
-                    {/* La caja usa el color del tema (Rojo o Ámbar) */}
-                    <div className={`${theme.lightBg} border ${theme.borderColor} p-4 rounded-lg`}>
-                        {/* Cambiamos el <p> por un <ul> y le damos estilos de lista */}
+                      <div className={`${theme.lightBg} border ${theme.borderColor} p-4 rounded-lg`}>
                         <ul className={`text-sm ${theme.textColor} leading-relaxed list-disc pl-5 space-y-2`}>
-                            {result.primeros_auxilios
-                                .split('.') // 1. Cortamos el texto en cada punto
-                                .filter(paso => paso.trim() !== '') // 2. Descartamos fragmentos vacíos
-                                .map((paso, index) => (
-                                    // 3. Renderizamos cada paso limpiando espacios extras y devolviendo el punto
+                            {/* Renderizado defensivo: Verificamos el tipo de dato antes de iterar */}
+                            {Array.isArray(result.primeros_auxilios) 
+                                ? // CASO 1: Es un Arreglo (El nuevo formato del Schema)
+                                  result.primeros_auxilios.map((paso, index) => (
                                     <li key={index} className="pl-1">
-                                        {paso.trim()}.
+                                        {paso}
                                     </li>
-                                ))
+                                  ))
+                                : // CASO 2: Es un Texto (Formato antiguo o caché)
+                                  typeof result.primeros_auxilios === 'string'
+                                  ? result.primeros_auxilios
+                                        .split('.')
+                                        .filter(paso => paso.trim() !== '')
+                                        .map((paso, index) => (
+                                            <li key={index} className="pl-1">
+                                                {paso.trim()}.
+                                            </li>
+                                        ))
+                                  : // CASO 3: Fallback de seguridad por si llega indefinido
+                                    <li>Cargando protocolo...</li>
                             }
                         </ul>
                     </div>
-                </div>
             )}
 
         </div>

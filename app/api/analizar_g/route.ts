@@ -29,7 +29,8 @@ const schema: Schema = {
     nivel_peligrosidad: { type: SchemaType.STRING, description: "Nivel de riesgo: 'BAJO', 'MODERADO', 'ALTO'", nullable: false },
     descripcion_pokedex: { type: SchemaType.STRING, description: "Dato curioso", nullable: false },
     habitat: { type: SchemaType.STRING, description: "Dónde vive", nullable: false },
-    primeros_auxilios: { type: SchemaType.STRING, description: "Qué hacer", nullable: false },
+    primeros_auxilios: { type: SchemaType.ARRAY, description: "Pasos de emergencia precisos y cortos. Máximo 5 a 7 palabras por paso. Sin texto de relleno.",
+      items: { type: SchemaType.STRING },nullable: false },
     nivel_confianza: { type: SchemaType.NUMBER, description: "0 al 1", nullable: false },
   },
   required: ["identificado", "nombre_comun", "nombre_cientifico", "nivel_peligrosidad", "descripcion_pokedex", "habitat", "primeros_auxilios", "nivel_confianza"],
@@ -79,7 +80,11 @@ export async function POST(req: NextRequest) {
       1. Identifica el animal.
       2. Clasifica el 'nivel_peligrosidad' (BAJO, MODERADO, ALTO).
       3. Si es abeja/avispa -> MODERADO.
-      4. Genera consejos de primeros auxilios.
+      4. REGLA ESTRICTA PARA PRIMEROS AUXILIOS: 
+         - Escribe solo pasos de acción inmediata.
+         - Usa verbos directos (ej: "Lava con agua", "No frotes", "Aplica hielo").
+         - Cero explicaciones médicas largas, cero texto de relleno.
+         - El objetivo es que la víctima actúe en segundos.
     `;
 
     const result = await model.generateContent([

@@ -33,7 +33,9 @@ export default withAuth(
         if (path.startsWith("/Analizar")) {
           return true;
         }
-
+        if (path.startsWith("/Ubicacion")) {
+          return true;
+        }
         // ---------------------------------------------------------
         // 2. ZONA PROTEGIDA - Validación de Token
         // ---------------------------------------------------------

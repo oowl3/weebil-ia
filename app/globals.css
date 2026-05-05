@@ -3,44 +3,56 @@
 @import "tailwindcss/utilities";
 
 :root {
-  /* Fuentes */
+  /* =========================
+     🧠 FUENTES
+  ========================= */
   --font-manrope: "Manrope", sans-serif;
-  --font-instrument-sans: "Instrument Sans", sans-serif;
 
-  /* Azul */
-  --blue-strong: #112A46;
+  /* =========================
+     🌿 VERDES
+  ========================= */
+  --green-1: #F4FAF0;
+  --green-2: #DDF6B8;
+  --green-3: #C7EFA3;
+  --green-4: #A9DB85;
+  --green-5: #7FB069;
 
-  /* Tonos intensos */
-  --intense-pink-cl: #fdd3db;
-  --intense-pink: #D92B4B;
-  --intense-red: #EA4335;
+  /* =========================
+     🔴 ROJOS
+  ========================= */
+  --red-1: #FEE2E2;
+  --red-2: #EF4444;
+  --red-3: #DC2626;
+  --red-4: #7F1D1D;
 
-  /* Negro profundo */
-  --black-deep: #0C0C0C;
+  /* =========================
+     🌼 AMARILLOS
+  ========================= */
+  --yellow-1: #FFF4B5;
+  --yellow-2: #F6E27F;
 
-  /* Verdes */
-  --green-dark: #252601;
-  --green-mid: #575920;
-  --green-light: #83862D;
+  /* =========================
+     ⚫ NEGROS / TEXTOS
+  ========================= */
+  --black-1: #1F2937;
+  --black-2: #4B5563;
 
-  /* Cafés oscuros */
-  --brown-dark-1: #261501;
-  --brown-dark-2: #4B2902;
-  --brown-dark-3: #633703;
+  /* =========================
+     ⚪ GRISES / BORDES
+  ========================= */
+  --gray-1: #E5E7EB;
 
-  /* Cafés claros */
-  --brown-mid-1: #734C29;
-  --brown-mid-2: #9D6634;
-  --brown-mid-3: #B27D4D;
+  /* =========================
+     ⚪ BASES
+  ========================= */
+  --white: #FFFFFF;
+  --white-1: #EDEDE6;
 
-  /* Arenas */
-  --sand-1: #D9A87E;
-  --sand-2: #F0D7C2;
-  --sand-3: #FCF4EE;
-
-  /* Fondo y texto por defecto */
-  --background: var(--sand-3);
-  --foreground: var(--black-deep);
+  /* =========================
+     🎯 DEFAULT
+  ========================= */
+  --background: var(--green-1);
+  --foreground: var(--black-1);
 }
 
 body {
@@ -48,4 +60,3 @@ body {
   color: var(--foreground);
   font-family: var(--font-manrope);
 }
-

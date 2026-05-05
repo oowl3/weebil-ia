@@ -1,5 +1,5 @@
 import React from "react";
-import Logo from "./logo";
+import Logo from "./logobixil";
 import Link from "next/link";
 
 export default function Header_a() {
@@ -12,12 +12,11 @@ export default function Header_a() {
         <div className="flex items-center gap-4">
           <Logo />
           <h1 className="font-bold flex items-center select-none">
-            <span className="text-(--intense-pink) text-5xl">W</span>
-            <span className="text-(--black-deep) text-5xl">e</span>
-            <span className="text-(--black-deep) text-5xl">e</span>
-            <span className="text-(--black-deep) text-5xl">b</span>
-            <span className="text-(--green-light) text-5xl">i</span>
-            <span className="text-(--green-light) text-5xl">l</span>
+            <span className="text-black text-5xl">B</span>
+            <span className="text-black text-5xl">I</span>
+            <span className="text-green-600 text-5xl">X</span>
+            <span className="text-black text-5xl">I</span>
+            <span className="text-black text-5xl">L</span>
           </h1>
         </div>
       </header>

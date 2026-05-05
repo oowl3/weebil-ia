@@ -168,12 +168,13 @@ export default function ResultModal({ result, onClose }: ResultModalProps) {
             {/* Primeros Auxilios (Se muestra si NO es BAJO) */}
             {dangerLevel !== "BAJO" && (
                       <div className={`${theme.lightBg} border ${theme.borderColor} p-4 rounded-lg`}>
-                        <ul className={`text-sm ${theme.textColor} leading-relaxed list-disc pl-5 space-y-2`}>
+                        {/* 1. Cambiamos <ul> por <ol> y 'list-disc' por 'list-decimal' */}
+                        <ol className={`text-sm ${theme.textColor} leading-relaxed list-decimal pl-5 space-y-2`}>
                             {/* Renderizado defensivo: Verificamos el tipo de dato antes de iterar */}
                             {Array.isArray(result.primeros_auxilios) 
                                 ? // CASO 1: Es un Arreglo (El nuevo formato del Schema)
                                   result.primeros_auxilios.map((paso, index) => (
-                                    <li key={index} className="pl-1">
+                                    <li key={index} className="pl-1 pl-1 marker:font-bold">
                                         {paso}
                                     </li>
                                   ))
@@ -183,14 +184,14 @@ export default function ResultModal({ result, onClose }: ResultModalProps) {
                                         .split('.')
                                         .filter(paso => paso.trim() !== '')
                                         .map((paso, index) => (
-                                            <li key={index} className="pl-1">
+                                            <li key={index} className="pl-1 marker:font-bold">
                                                 {paso.trim()}.
                                             </li>
                                         ))
                                   : // CASO 3: Fallback de seguridad por si llega indefinido
                                     <li>Cargando protocolo...</li>
                             }
-                        </ul>
+                        </ol>
                     </div>
             )}
 

@@ -31,11 +31,7 @@ const Informacion = () => {
               </span>
             </h2>
             <p className="text-[16px] leading-relaxed text-(--black-deep) opacity-80 text-justify">
-<<<<<<< HEAD
               Al usar BIXIL en tu dispositivo móvil, aceptas usar la herramienta como una guía de apoyo. 
-=======
-              Al usar Weebil en tu dispositivo móvil, aceptas usar la herramienta como una guía de apoyo. 
->>>>>>> 9566ba7a0ef581905826d8e6d3e1f651a30e4839
               La detección de especies peligrosas depende de la calidad de la cámara de tu celular. 
               No nos hacemos responsables por fallos derivados de hardware incompatible o mala conexión GPS.
             </p>

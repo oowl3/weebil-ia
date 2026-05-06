@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+:root {
+  /* =========================
+     🧠 FUENTES
+  ========================= */
+  --font-manrope: "Manrope", sans-serif;
+
+  /* =========================
+     🌿 VERDES
+  ========================= */
+  --green-1: #F4FAF0;
+  --green-2: #DDF6B8;
+  --green-3: #C7EFA3;
+  --green-4: #A9DB85;
+  --green-5: #7FB069;
+
+  /* =========================
+     🔴 ROJOS
+  ========================= */
+  --red-1: #FEE2E2;
+  --red-2: #EF4444;
+  --red-3: #DC2626;
+  --red-4: #7F1D1D;
+
+  /* =========================
+     🌼 AMARILLOS
+  ========================= */
+  --yellow-1: #FFF4B5;
+  --yellow-2: #F6E27F;
+
+  /* =========================
+     ⚫ NEGROS / TEXTOS
+  ========================= */
+  --black-1: #1F2937;
+  --black-2: #4B5563;
+
+  /* =========================
+     ⚪ GRISES / BORDES
+  ========================= */
+  --gray-1: #E5E7EB;
+
+  /* =========================
+     ⚪ BASES
+  ========================= */
+  --white: #FFFFFF;
+  --white-1: #EDEDE6;
+
+  /* =========================
+     🎯 DEFAULT
+  ========================= */
+  --background: var(--green-1);
+  --foreground: var(--black-1);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-manrope);
+}

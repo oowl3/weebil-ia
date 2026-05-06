@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. MÓDULO DE AUTENTICACIÓN (ESTÁNDAR NEXT-AUTH)
+// ==========================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  
+  accounts      Account[]
+  sessions      Session[]
+
+  // Relación con tu negocio (Aracnoscan)
+  animalesDesbloqueados AnimalDesbloqueado[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ==========================================
+// 2. MÓDULO ARACNOSCAN (LÓGICA DE NEGOCIO)
+// ==========================================
+
+// Enums para tipado estricto (Mejora DX)
+enum Peligrosidad {
+  BAJA      // Verde
+  MEDIA     // Amarillo
+  ALTA      // Rojo
+  LETAL     // Negro
+}
+
+enum CategoriaAnimal {
+  ARANA
+  ESCORPION
+  SERPIENTE
+  INSECTO
+  OTRO
+}
+
+model Animal {
+
+  id               Int      @id @default(autoincrement())
+  nombreComun      String
+  nombreCientifico String?
+  descripcion      String?
+  habitat          String?
+  primerosAuxilios String?
+  rutaImagen       String?
+  creadoEn         DateTime @default(now())
+  // Peligrosidad: 1=Verde, 2=Amarillo, 3=Rojo (Peligroso)
+  peligrosidad Int @default(1)
+  // Categoria: 1=Araña, 2=Reptil, etc.
+  categoria    Int @default(1)
+
+  // Relaciones
+  animalAntidoto  AnimalAntidoto[]
+  desbloqueadoPor AnimalDesbloqueado[]
+
+  @@map("animales")
+}
+
+// Tabla Intermedia: Pokedex del usuario
+model AnimalDesbloqueado {
+  usuarioId      String
+  animalId       Int
+  desbloqueadoEn DateTime @default(now())
+
+  usuario User   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  animal  Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, animalId]) 
+  @@map("animales_desbloqueados")
+}
+
+model Antidoto {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  descripcion String?
+  creadoEn    DateTime @default(now())
+
+  animalAntidoto   AnimalAntidoto[]
+  hospitalAntidoto HospitalAntidoto[]
+
+  @@map("antidotos")
+}
+
+model AnimalAntidoto {
+  animalId   Int
+  antidotoId Int
+
+  animal   Animal   @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  antidoto Antidoto @relation(fields: [antidotoId], references: [id], onDelete: Cascade)
+
+  @@id([animalId, antidotoId])
+  @@map("animales_antidotos")
+}
+
+model Hospital {
+  id                 Int      @id @default(autoincrement())
+  nombre             String
+  direccion          String
+  telefono           String?
+  latitud            Float
+  longitud           Float
+  ultimaVerificacion DateTime?
+  creadoEn           DateTime @default(now())
+
+  hospitalAntidoto HospitalAntidoto[]
+
+  @@map("hospitales")
+}
+
+model HospitalAntidoto {
+  hospitalId Int
+  antidotoId Int
+  stock      Int? @default(0)
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  antidoto Antidoto @relation(fields: [antidotoId], references: [id], onDelete: Cascade)
+
+  @@id([hospitalId, antidotoId])
+  @@map("hospitales_antidotos")
+}
+
+model Faq {
+  id        Int      @id @default(autoincrement())
+  pregunta  String
+  respuesta String   @db.Text
+  creadoEn  DateTime @default(now())
+  @@map("faqs")
+}

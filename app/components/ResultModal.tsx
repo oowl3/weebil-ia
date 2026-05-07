@@ -174,7 +174,7 @@ export default function ResultModal({ result, onClose }: ResultModalProps) {
                             {Array.isArray(result.primeros_auxilios) 
                                 ? // CASO 1: Es un Arreglo (El nuevo formato del Schema)
                                   result.primeros_auxilios.map((paso, index) => (
-                                    <li key={index} className="pl-1 pl-1 marker:font-bold">
+                                    <li key={index} className="pl-1 marker:font-bold">
                                         {paso}
                                     </li>
                                   ))
